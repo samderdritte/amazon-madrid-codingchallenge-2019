@@ -164,7 +164,7 @@ public class SubwayStationsReader {
     	System.out.println("Subway station imported.");
     	System.out.println(ssr.subwaySystem.get("6").getStations().get("Pacífico"));
     	
-    	SubwayLine line6 = ssr.subwaySystem.get("6");
+    	//SubwayLine line6 = ssr.subwaySystem.get("6");
     	SubwayLine line5 = ssr.subwaySystem.get("5");
     	System.out.println(line5);
     	System.out.println(line5.getTimeBetweenStations("Acacias", "Gran Vía"));
@@ -174,8 +174,7 @@ public class SubwayStationsReader {
     	System.out.println(ssr.allStations.get("Pacífico").getConnectedStations());
     	System.out.println(ssr.allStations.get("Sol").getConnectedStations());
     	System.out.println(ssr.allStations.get("Nuevos Ministerios").getConnectedStations());
-    	System.out.println(ssr.allStations.get("Pinar de Chamartín").getConnectionTimes().get("Mar de Cristal"));
-
+    	
     	
     	for(Station station : ssr.allStations.values()) {
     		System.out.println();
