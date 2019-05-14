@@ -1,6 +1,7 @@
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +40,7 @@ public class DijkstraAlgorithmTest {
 		
 		Station origin = acacias;
 		Station destination = granVia;
-		ArrayList<Station> shortestPath = dijkstra.calculateShortestPath(origin, destination);
+		LinkedList<Station> shortestPath = dijkstra.getAlphabeticalPath(origin, destination);
 		assertEquals(solution, shortestPath);
 		
 		// Case 2 Mirasierra to Plaza De Castilla
@@ -51,7 +52,7 @@ public class DijkstraAlgorithmTest {
 		solution.add(plazaDeCastilla);
 		origin = mirasierra;
 		destination = plazaDeCastilla;
-		shortestPath = dijkstra.calculateShortestPath(origin, destination);
+		shortestPath = dijkstra.getAlphabeticalPath(origin, destination);
 		assertEquals(solution, shortestPath);
 		
 		// Case 3 - Opera to Gran Via
@@ -65,7 +66,7 @@ public class DijkstraAlgorithmTest {
 		
 		origin = opera;
 		destination = granVia;
-		shortestPath = dijkstra.calculateShortestPath(origin, destination);
+		shortestPath = dijkstra.getAlphabeticalPath(origin, destination);
 		assertEquals(solution, shortestPath);
 		
 		// Case 4 - Mirasierra to Gran Via
@@ -87,7 +88,7 @@ public class DijkstraAlgorithmTest {
 		
 		origin = mirasierra;
 		destination = granVia;
-		shortestPath = dijkstra.calculateShortestPath(origin, destination);
+		shortestPath = dijkstra.getAlphabeticalPath(origin, destination);
 		assertEquals(solution, shortestPath);
 		
 		
@@ -112,7 +113,7 @@ public class DijkstraAlgorithmTest {
 		
 		origin = opera;
 		destination = pinarDeChamartin;
-		shortestPath = dijkstra.calculateShortestPath(origin, destination);
+		shortestPath = dijkstra.getAlphabeticalPath(origin, destination);
 		assertEquals(solution, shortestPath);
 	}
 

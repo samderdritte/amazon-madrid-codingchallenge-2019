@@ -1,9 +1,5 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,12 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class DijkstraAlgorithm {
 
-	private final List<Station> stations;
     private final List<Connection> connections;
     private Set<Station> settledStations;
     private Set<Station> unSettledStations;
@@ -26,12 +20,13 @@ public class DijkstraAlgorithm {
 
     public DijkstraAlgorithm(Graph graph) {
         // create a copy of the array so that we can operate on this array
-        this.stations = new ArrayList<Station>(graph.getStations());
         this.connections = new ArrayList<Connection>(graph.getConnections());
     }
+    
     public Map<Station, Station> getPredecessors(){
     	return predecessors;
     }
+    
     public void execute(Station source) {
     	settledStations = new HashSet<Station>();
     	unSettledStations = new HashSet<Station>();
@@ -130,105 +125,33 @@ public class DijkstraAlgorithm {
         return path;
     }
     
-    public int getTimeOfTrip(Station[] path) {
+    /**
+     * Calculates the time of a trip given by stations. 
+     * Stations need to be in order.
+     * @param path	A LinkedList of Stations.
+     * @return	The total time of the trip.
+     */
+    public int getTimeOfTrip(LinkedList<Station> path) {
     	if(path == null) {
     		return 0;
     	}
     	int totalTime = 0;
-    	Station first = path[0];
-    	Station last = path[path.length-1];
-    	//System.out.println(path.length);
-    	for (int i=0;i<(path.length-1);i++) {
-    		//System.out.println(i);
-    		Station currentStation = path[i];
-    		Station nextStation = path[(i+1)];
+    	for (int i=0;i<(path.size()-1);i++) {
+    		Station currentStation = path.get(i);
+    		Station nextStation = path.get(i+1);
     		totalTime += currentStation.getConnectionTimes().get(nextStation);
     	}
-    	//System.out.println("The total trip lenght from " +first+ " to " +last+ ": " +totalTime +"\n");
-    	return totalTime;
+     	return totalTime;
     }
-    
-    public Station[] calculateAlternativeTrip(Station[] trip) {
-        
-    	// shortest path is given by the length of the trip
-		int shortestPath = trip.length;
-		int shortestTripLength = getTimeOfTrip(trip);
-		
-		// create a new trip of the same length
-		Station[] updatedTrip = new Station[trip.length];
-		// first ans last Station are the same
-		updatedTrip[0] = trip[0];
-		updatedTrip[updatedTrip.length-1] = trip[trip.length-1];
-		
-		//System.out.println("original trip: " + Arrays.toString(trip));
-		for (int i=0; i<trip.length-1;i++) {
-			
-			Station destination = trip[trip.length-1];
-			Station currentStation = trip[i];
-					
-			List<Station> connectedStations = currentStation.getConnectedStations();
-			//System.out.println("Current Station: "+currentStation + ", connected Stations: " + connectedStations);
-			//System.out.println("shortest path from "+currentStation + " is: "+shortestPath);
-			//System.out.println("shortest path from next stations is: "+(shortestPath-1));
-			
-			//we are one station further, thus reduce shortest path by 1
-			//shortestPath--;
-			
-			if(connectedStations.size() > 2) {
-				int shortestTimeToTheConnections = Integer.MAX_VALUE;
-				int tripLenghtFromHere;
-				for (int j=0;j<connectedStations.size();j++) {
-					if (connectedStations.get(j) == destination) {
-						updatedTrip[i] = currentStation;
-						break;
-					}
-					
-					//System.out.println("connected "+(j+1) +": "+connectedStations.get(j));
-					//System.out.println("Time from: "+currentStation+ " to "+connectedStations.get(j)+": "+currentStation.getConnectionTimes().get(connectedStations.get(j)));
-					if (currentStation.getConnectionTimes().get(connectedStations.get(j)) <= shortestTimeToTheConnections) {
-						shortestTimeToTheConnections = currentStation.getConnectionTimes().get(connectedStations.get(j));
-					}
-					execute(connectedStations.get(j));
-					LinkedList<Station> path = getPath(destination);
-					
-					
-					//System.out.println("path from "+connectedStations.get(j)+ " to " +destination + ": "+path);
-					
-					if (path != null) {
-						tripLenghtFromHere = getTimeOfTrip(path.toArray(new Station[path.size()]));
-					} else {
-						tripLenghtFromHere = shortestTripLength;
-					}
-					//System.out.println(tripLenghtFromHere);
-					//System.out.println(shortestTripLength-shortestTimeToTheConnections);
-					//System.out.println(trip[i+1].getName());
-					if(path != null && tripLenghtFromHere <= (shortestTripLength-shortestTimeToTheConnections) && (trip[i+1].getName().compareTo(connectedStations.get(j).getName()) >= 0)) {
-						//System.out.println("Shortest Path from: "+connectedStations.get(j)+" to " + destination + " path size: "+path.size());
-						//System.out.println("path time: "+this.getTimeOfTrip(path.toArray(new Station[path.size()])));
-						//System.out.println("better way found: " + connectedStations.get(j));
-						getTimeOfTrip(path.toArray(new Station[path.size()]));
-						//System.out.println();
-						//shortestPath = path.size();
-						updatedTrip[i+1] = connectedStations.get(j);
-						shortestTripLength = tripLenghtFromHere;
-						
-						trip[i+1] = connectedStations.get(j);
-						//System.out.println("Trip is now: "+Arrays.toString(trip));
-						//System.out.println("next node to check: " + trip[i+1]);
-						
-					} else {
-						//updatedTrip[i+1] = currentStation;
-						//System.out.println(connectedStations.get(j) + " has a longer trip.\n");
-					}
-				}
-			} else {
-				updatedTrip[i] = currentStation;
-				//System.out.println(currentStation + " is no transfer station.");
-			}
-		}
-		return updatedTrip;
-    }
-      
+    /**
+     * Returns the neighboring station with the shortest path to the destination.
+     * If two paths have the same time, the return the next station in alphabetical order.
+     * This method uses the original getPath()-method to calculate the shortest path
+     * to the destination.
+     * @param origin
+     * @param destination
+     * @return
+     */
     public Station getNeighborWithShortestPathToTarget(Station origin, Station destination) {
     	boolean hasMultiplePaths = false;
     	this.execute(origin);
@@ -254,13 +177,14 @@ public class DijkstraAlgorithm {
         	if(newPath == null) {
         		timeFromCurrentConnectedToDestination = 0;
         	} else {
-        		timeFromCurrentConnectedToDestination = getTimeOfTrip(newPath.toArray(new Station[newPath.size()]));
+        		timeFromCurrentConnectedToDestination = getTimeOfTrip(newPath);
+        		//timeFromCurrentConnectedToDestination = getTimeOfTrip(newPath.toArray(new Station[newPath.size()]));
         	}
         	
         	//System.out.println("The time from "+currentConnectedStation+" to "+destination+" is "+timeFromCurrentConnectedToDestination);
         	//System.out.println("Sum via this destination: "+timeFromOriginToCurrent +"+"+timeFromCurrentConnectedToDestination+"="+(timeFromOriginToCurrent+timeFromCurrentConnectedToDestination));
-        	// if the next station has a shorter time to destination, set this time as new lowest
         	
+        	// if the next station has a shorter time to destination, set this time as new lowest    	
         	if (timeFromCurrentConnectedToDestination+timeFromOriginToCurrent < shortestTimeToDestination) {
         		shortestTimeToDestination = (timeFromCurrentConnectedToDestination+timeFromOriginToCurrent);
         		connectedStations.clear();
@@ -288,9 +212,18 @@ public class DijkstraAlgorithm {
         }
         
     }
-    
-    public ArrayList<Station> calculateShortestPath(Station origin, Station destination){
-    	ArrayList<Station> shortestPath = new ArrayList<Station>();
+    /**
+     * Calculates the shortest path from origin to destination.
+     * Makes a recursive call to getNeighborWithShortestPathToTarget.
+     * @param origin
+     * @param destination
+     * @return
+     */
+    public LinkedList<Station> getAlphabeticalPath(Station origin, Station destination){
+    	LinkedList<Station> shortestPath = new LinkedList<Station>();
+    	
+    	// recursive function: find the next station in alphabetical order if
+    	// two or more stations have the same path to the destination
     	while(origin != null) {
     		shortestPath.add(origin);
     		origin = getNeighborWithShortestPathToTarget(origin, destination);
@@ -300,7 +233,7 @@ public class DijkstraAlgorithm {
     }
     
     /**
-     * Sorts a Hashmap by its values. From Highest to lowest.
+     * Sorts a HashMap by its values. From Highest to lowest.
      * @param mapToSort	The map to sort.
      * @return	A sorted map
      */
@@ -333,8 +266,14 @@ public class DijkstraAlgorithm {
 		
 		return sortedMap;
     }
-    
-    public Map<Station, Integer> calculateAllPaths(Map<Integer, List<String>> allTrips, Map<String, Station> allStations){
+    /**
+     * Uses the List of all trips and calculates their respective shortest path.
+     * Uncomment the println-statements if needed. 
+     * @param allTrips
+     * @param allStations
+     * @return
+     */
+    public Map<Station, Integer> calculateAllPathsFromTrips(Map<Integer, List<String>> allTrips, Map<String, Station> allStations){
     	Map<Station, Integer> totalVisits = new HashMap<Station, Integer>();
     	
     	for (List<String> trip : allTrips.values()) {
@@ -343,10 +282,9 @@ public class DijkstraAlgorithm {
 			Station destination = allStations.get(trip.get(1));
 			this.execute(origin);
 	        	        
-	        ArrayList<Station> path = this.calculateShortestPath(origin, destination);
+	        LinkedList<Station> path = this.getAlphabeticalPath(origin, destination);
 	        System.out.println(path);
-	        Station[] pathAsArray = path.toArray(new Station[path.size()]);
-			System.out.println("Time of trip: "+this.getTimeOfTrip(pathAsArray));
+			System.out.println("Time of trip: "+this.getTimeOfTrip(path));
 			
 	        for (Station station : path) {	        	
 	        	if(!totalVisits.containsKey(station)) {
@@ -355,8 +293,7 @@ public class DijkstraAlgorithm {
 	        		int count = totalVisits.get(station) + 1;
 	        		totalVisits.put(station, count);
 	        	}
-	        }
-	        
+	        }	        
 	        //System.out.println(dijkstra.predecessors);	        
 		}
     	return totalVisits;
@@ -365,27 +302,30 @@ public class DijkstraAlgorithm {
     
     public static void main(String[] args) {
 		
+    	/**
+    	 * Import Data for Stations and Trips
+    	 */
     	SubwayStationsReader ssr = new SubwayStationsReader("metro_lines.json");
-	
-		Graph graph = new Graph(ssr.allConnections, ssr.allStationsList);
-
-		DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
-		
-        TripReader tr = new TripReader("trip_records.json");
-        Map<Integer, List<String>> allTrips = tr.getTrips();
-        Map<String, Station> allStations = ssr.allStations;
-		
-        Map<Station, Integer> totalVisits = dijkstra.calculateAllPaths(allTrips, allStations);
-		
-		System.out.println("\n--- Top 10 visited Stations: ---");
-		// Print the topN elements of a sorted map
-		int topN = 10;		
-		 Map<Station, Integer> sortedMap = dijkstra.sortMap(totalVisits, topN);
-		 for(Map.Entry<Station, Integer> entry : sortedMap.entrySet()) {
-				System.out.println(entry.getValue() + " - " + entry.getKey());
-			}
-		
+    	Graph graph = new Graph(ssr.allConnections, ssr.allStationsList);
+    	DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
+    	
+    	TripReader tr = new TripReader("trip_records.json");
+    	Map<Integer, List<String>> allTrips = tr.getTrips();
+    	Map<String, Station> allStations = ssr.allStations;
+    	
+    	/**
+    	 * Print all the paths for the visited Stations
+    	 */
+    	Map<Station, Integer> totalVisits = dijkstra.calculateAllPathsFromTrips(allTrips, allStations);
+    	
+    	/**
+    	 *  Print the top 10 elements of a sorted map
+    	 */
+    	System.out.println("\n--- Top 10 visited Stations: ---");    	
+    	int topN = 10;
+    	Map<Station, Integer> sortedMap = dijkstra.sortMap(totalVisits, topN);
+    	for(Map.Entry<Station, Integer> entry : sortedMap.entrySet()) {
+    		System.out.println(entry.getValue() + " - " + entry.getKey());
+    		}
+    	}
     }
-    
-    
-}
