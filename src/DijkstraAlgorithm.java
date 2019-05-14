@@ -316,12 +316,13 @@ public class DijkstraAlgorithm {
     	/**
     	 * Print all the paths for the visited Stations
     	 */
+    	System.out.println("\n--- Trips summary: ---");   
     	Map<Station, Integer> totalVisits = dijkstra.calculateAllPathsFromTrips(allTrips, allStations);
     	
     	/**
     	 *  Print the top 10 elements of a sorted map
     	 */
-    	System.out.println("\n--- Top 10 visited Stations: ---");    	
+    	System.out.println("\n\n\n--- Top 10 visited Stations: ---");    	
     	int topN = 10;
     	Map<Station, Integer> sortedMap = dijkstra.sortMap(totalVisits, topN);
     	for(Map.Entry<Station, Integer> entry : sortedMap.entrySet()) {

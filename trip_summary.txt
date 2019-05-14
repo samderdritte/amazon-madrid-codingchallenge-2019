@@ -1,0 +1,422 @@
+- Amazon Madrid Coding Challenge 2019 -
+
+  @autor: Samuel Spycher
+  @github: https://github.com/samderdritte/amazon-madrid-codingchallenge-2019
+  @status: 2019/05/14
+
+--- Trips summary: ---
+
+
+Shortest trip from: Acacias, to: Gran Vía
+[Acacias, Embajadores, Sol, Gran Vía]
+Time of trip: 8
+
+Shortest trip from: Mirasierra, to: Gran Vía
+[Mirasierra, Plaza de Castilla, Nuevos Ministerios, Gregorio Marañón, Alonso Martínez, Gran Vía]
+Time of trip: 19
+
+Shortest trip from: Ópera, to: Pinar de Chamartín
+[Ópera, Callao, Plaza de España, Tribunal, Alonso Martínez, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Pinar de Chamartín]
+Time of trip: 20
+
+Shortest trip from: Noviciado, to: Pitis
+[Noviciado, San Bernardo, Canal, Cuatro Caminos, Guzmán el Bueno, Pitis]
+Time of trip: 19
+
+Shortest trip from: Avenida de América, to: Tres Olivos
+[Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Tres Olivos]
+Time of trip: 15
+
+Shortest trip from: Príncipe de Vergara, to: Alameda de Osuna
+[Príncipe de Vergara, Goya, Manuel Becerra, Ventas, Pueblo Nuevo, Alameda de Osuna]
+Time of trip: 18
+
+Shortest trip from: Pueblo Nuevo, to: Gran Vía
+[Pueblo Nuevo, Avenida de América, Gregorio Marañón, Alonso Martínez, Gran Vía]
+Time of trip: 13
+
+Shortest trip from: Diego de León, to: Puerta del Sur
+[Diego de León, Núñez de Balboa, Alonso Martínez, Bilbao, Tribunal, Plaza de España, Príncipe Pío, Casa de Campo, Puerta del Sur]
+Time of trip: 27
+
+Shortest trip from: Núñez de Balboa, to: Noviciado
+[Núñez de Balboa, Alonso Martínez, Bilbao, San Bernardo, Noviciado]
+Time of trip: 6
+
+Shortest trip from: Mirasierra, to: Pitis
+[Mirasierra, Plaza de Castilla, Nuevos Ministerios, Cuatro Caminos, Guzmán el Bueno, Pitis]
+Time of trip: 28
+
+Shortest trip from: Acacias, to: Gran Vía
+[Acacias, Embajadores, Sol, Gran Vía]
+Time of trip: 8
+
+Shortest trip from: San Bernardo, to: Ventas
+[San Bernardo, Bilbao, Alonso Martínez, Núñez de Balboa, Diego de León, Manuel Becerra, Ventas]
+Time of trip: 8
+
+Shortest trip from: Cuatro Caminos, to: Valdecarros
+[Cuatro Caminos, Nuevos Ministerios, Avenida de América, Diego de León, Manuel Becerra, Sainz de Baranda, Pacífico, Valdecarros]
+Time of trip: 34
+
+Shortest trip from: Villaverde Alto, to: Pueblo Nuevo
+[Villaverde Alto, Legazpi, Pacífico, Sainz de Baranda, Manuel Becerra, Ventas, Pueblo Nuevo]
+Time of trip: 30
+
+Shortest trip from: Oporto, to: Legazpi
+[Oporto, Legazpi]
+Time of trip: 8
+
+Shortest trip from: Plaza de Castilla, to: Pueblo Nuevo
+[Plaza de Castilla, Nuevos Ministerios, Avenida de América, Pueblo Nuevo]
+Time of trip: 14
+
+Shortest trip from: Chamartín, to: Legazpi
+[Chamartín, Plaza de Castilla, Nuevos Ministerios, Gregorio Marañón, Alonso Martínez, Gran Vía, Sol, Embajadores, Legazpi]
+Time of trip: 22
+
+Shortest trip from: Ventas, to: Pinar de Chamartín
+[Ventas, Manuel Becerra, Diego de León, Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Pinar de Chamartín]
+Time of trip: 17
+
+Shortest trip from: Cuatro Caminos, to: Tres Olivos
+[Cuatro Caminos, Nuevos Ministerios, Plaza de Castilla, Chamartín, Tres Olivos]
+Time of trip: 13
+
+Shortest trip from: Nuevos Ministerios, to: Gran Vía
+[Nuevos Ministerios, Gregorio Marañón, Alonso Martínez, Gran Vía]
+Time of trip: 6
+
+Shortest trip from: Alonso Martínez, to: Avenida de América
+[Alonso Martínez, Gregorio Marañón, Avenida de América]
+Time of trip: 4
+
+Shortest trip from: Núñez de Balboa, to: Mar de Cristal
+[Núñez de Balboa, Avenida de América, Colombia, Mar de Cristal]
+Time of trip: 12
+
+Shortest trip from: Acacias, to: Guzmán el Bueno
+[Acacias, Ópera, Noviciado, San Bernardo, Canal, Cuatro Caminos, Guzmán el Bueno]
+Time of trip: 15
+
+Shortest trip from: Embajadores, to: Arganda de Rey
+[Embajadores, Sol, Príncipe de Vergara, Sainz de Baranda, Arganda de Rey]
+Time of trip: 27
+
+Shortest trip from: Príncipe de Vergara, to: Chamartín
+[Príncipe de Vergara, Núñez de Balboa, Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín]
+Time of trip: 14
+
+Shortest trip from: Sainz de Baranda, to: Tres Olivos
+[Sainz de Baranda, Manuel Becerra, Diego de León, Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Tres Olivos]
+Time of trip: 20
+
+Shortest trip from: Sol, to: Estadio Metropolitano
+[Sol, Príncipe de Vergara, Goya, Manuel Becerra, Ventas, Pueblo Nuevo, Estadio Metropolitano]
+Time of trip: 22
+
+Shortest trip from: Pinar de Chamartín, to: Acacias
+[Pinar de Chamartín, Chamartín, Plaza de Castilla, Nuevos Ministerios, Cuatro Caminos, Canal, San Bernardo, Noviciado, Ópera, Acacias]
+Time of trip: 25
+
+Shortest trip from: Príncipe Pío, to: Gregorio Marañón
+[Príncipe Pío, Plaza de España, Tribunal, Alonso Martínez, Gregorio Marañón]
+Time of trip: 7
+
+Shortest trip from: Alonso Martínez, to: Oporto
+[Alonso Martínez, Bilbao, San Bernardo, Noviciado, Ópera, Acacias, Oporto]
+Time of trip: 18
+
+Shortest trip from: Chamartín, to: Las Rosas
+[Chamartín, Plaza de Castilla, Nuevos Ministerios, Avenida de América, Diego de León, Manuel Becerra, Ventas, Las Rosas]
+Time of trip: 22
+
+Shortest trip from: Aeropuerto T4, to: Alonso Martínez
+[Aeropuerto T4, Mar de Cristal, Colombia, Nuevos Ministerios, Gregorio Marañón, Alonso Martínez]
+Time of trip: 21
+
+Shortest trip from: San Bernardo, to: Bilbao
+[San Bernardo, Bilbao]
+Time of trip: 1
+
+Shortest trip from: Nuevos Ministerios, to: Alonso Martínez
+[Nuevos Ministerios, Gregorio Marañón, Alonso Martínez]
+Time of trip: 3
+
+Shortest trip from: Acacias, to: Legazpi
+[Acacias, Embajadores, Legazpi]
+Time of trip: 7
+
+Shortest trip from: Plaza de Castilla, to: Goya
+[Plaza de Castilla, Nuevos Ministerios, Avenida de América, Diego de León, Goya]
+Time of trip: 12
+
+Shortest trip from: Callao, to: Villaverde Alto
+[Callao, Sol, Embajadores, Legazpi, Villaverde Alto]
+Time of trip: 22
+
+Shortest trip from: Moncloa, to: Villaverde Alto
+[Moncloa, Argüelles, Plaza de España, Callao, Sol, Embajadores, Legazpi, Villaverde Alto]
+Time of trip: 27
+
+Shortest trip from: Casa de Campo, to: Goya
+[Casa de Campo, Príncipe Pío, Plaza de España, Tribunal, Alonso Martínez, Goya]
+Time of trip: 17
+
+Shortest trip from: Pinar de Chamartín, to: Valdecarros
+[Pinar de Chamartín, Chamartín, Plaza de Castilla, Nuevos Ministerios, Avenida de América, Diego de León, Manuel Becerra, Sainz de Baranda, Pacífico, Valdecarros]
+Time of trip: 44
+
+Shortest trip from: Colombia, to: Manuel Becerra
+[Colombia, Avenida de América, Diego de León, Manuel Becerra]
+Time of trip: 7
+
+Shortest trip from: Diego de León, to: Avenida de América
+[Diego de León, Avenida de América]
+Time of trip: 1
+
+Shortest trip from: Valdecarros, to: Villaverde Alto
+[Valdecarros, Pacífico, Legazpi, Villaverde Alto]
+Time of trip: 39
+
+Shortest trip from: Ópera, to: Plaza de España
+[Ópera, Callao, Plaza de España]
+Time of trip: 3
+
+Shortest trip from: Tres Olivos, to: Plaza de Castilla
+[Tres Olivos, Chamartín, Plaza de Castilla]
+Time of trip: 7
+
+Shortest trip from: Tribunal, to: Mar de Cristal
+[Tribunal, Alonso Martínez, Gregorio Marañón, Nuevos Ministerios, Colombia, Mar de Cristal]
+Time of trip: 12
+
+Shortest trip from: Ventas, to: Alonso Martínez
+[Ventas, Manuel Becerra, Diego de León, Núñez de Balboa, Alonso Martínez]
+Time of trip: 6
+
+Shortest trip from: Manuel Becerra, to: Plaza de España
+[Manuel Becerra, Diego de León, Núñez de Balboa, Alonso Martínez, Bilbao, Tribunal, Plaza de España]
+Time of trip: 8
+
+Shortest trip from: Embajadores, to: Chamartín
+[Embajadores, Sol, Gran Vía, Alonso Martínez, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín]
+Time of trip: 18
+
+Shortest trip from: Mar de Cristal, to: Casa de Campo
+[Mar de Cristal, Colombia, Nuevos Ministerios, Gregorio Marañón, Alonso Martínez, Bilbao, Tribunal, Plaza de España, Príncipe Pío, Casa de Campo]
+Time of trip: 22
+
+Shortest trip from: Pitis, to: Príncipe de Vergara
+[Pitis, Guzmán el Bueno, Cuatro Caminos, Nuevos Ministerios, Avenida de América, Diego de León, Núñez de Balboa, Príncipe de Vergara]
+Time of trip: 22
+
+Shortest trip from: Tribunal, to: Callao
+[Tribunal, Plaza de España, Callao]
+Time of trip: 2
+
+Shortest trip from: Acacias, to: Legazpi
+[Acacias, Embajadores, Legazpi]
+Time of trip: 7
+
+Shortest trip from: Avenida de América, to: Príncipe Pío
+[Avenida de América, Gregorio Marañón, Alonso Martínez, Bilbao, Tribunal, Plaza de España, Príncipe Pío]
+Time of trip: 9
+
+Shortest trip from: Mar de Cristal, to: Manuel Becerra
+[Mar de Cristal, Colombia, Avenida de América, Diego de León, Manuel Becerra]
+Time of trip: 12
+
+Shortest trip from: Estadio Metropolitano, to: Tres Olivos
+[Estadio Metropolitano, Pueblo Nuevo, Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Tres Olivos]
+Time of trip: 30
+
+Shortest trip from: Cuatro Caminos, to: Argüelles
+[Cuatro Caminos, Canal, San Bernardo, Argüelles]
+Time of trip: 6
+
+Shortest trip from: Pacífico, to: Ventas
+[Pacífico, Sainz de Baranda, Manuel Becerra, Ventas]
+Time of trip: 8
+
+Shortest trip from: Ópera, to: Núñez de Balboa
+[Ópera, Sol, Príncipe de Vergara, Núñez de Balboa]
+Time of trip: 8
+
+Shortest trip from: Ventas, to: Plaza de Castilla
+[Ventas, Manuel Becerra, Diego de León, Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla]
+Time of trip: 11
+
+Shortest trip from: Nuevos Ministerios, to: Mirasierra
+[Nuevos Ministerios, Plaza de Castilla, Mirasierra]
+Time of trip: 13
+
+Shortest trip from: Oporto, to: Diego de León
+[Oporto, Acacias, Embajadores, Sol, Príncipe de Vergara, Núñez de Balboa, Diego de León]
+Time of trip: 21
+
+Shortest trip from: Goya, to: Aeropuerto T4
+[Goya, Diego de León, Avenida de América, Colombia, Mar de Cristal, Aeropuerto T4]
+Time of trip: 25
+
+Shortest trip from: Guzmán el Bueno, to: Noviciado
+[Guzmán el Bueno, Canal, San Bernardo, Noviciado]
+Time of trip: 7
+
+Shortest trip from: Príncipe Pío, to: Bilbao
+[Príncipe Pío, Plaza de España, Tribunal, Bilbao]
+Time of trip: 4
+
+Shortest trip from: Avenida de América, to: Callao
+[Avenida de América, Gregorio Marañón, Alonso Martínez, Bilbao, Tribunal, Plaza de España, Callao]
+Time of trip: 8
+
+Shortest trip from: Moncloa, to: Avenida de América
+[Moncloa, Argüelles, San Bernardo, Bilbao, Alonso Martínez, Gregorio Marañón, Avenida de América]
+Time of trip: 9
+
+Shortest trip from: Noviciado, to: Avenida de América
+[Noviciado, San Bernardo, Bilbao, Alonso Martínez, Gregorio Marañón, Avenida de América]
+Time of trip: 7
+
+Shortest trip from: Goya, to: Villaverde Alto
+[Goya, Príncipe de Vergara, Sainz de Baranda, Pacífico, Legazpi, Villaverde Alto]
+Time of trip: 26
+
+Shortest trip from: Avenida de América, to: Pueblo Nuevo
+[Avenida de América, Pueblo Nuevo]
+Time of trip: 6
+
+Shortest trip from: Príncipe de Vergara, to: Embajadores
+[Príncipe de Vergara, Sol, Embajadores]
+Time of trip: 8
+
+Shortest trip from: Diego de León, to: Arganda de Rey
+[Diego de León, Manuel Becerra, Sainz de Baranda, Arganda de Rey]
+Time of trip: 20
+
+Shortest trip from: Pacífico, to: Aeropuerto T4
+[Pacífico, Sainz de Baranda, Manuel Becerra, Diego de León, Avenida de América, Colombia, Mar de Cristal, Aeropuerto T4]
+Time of trip: 30
+
+Shortest trip from: Puerta del Sur, to: Núñez de Balboa
+[Puerta del Sur, Casa de Campo, Príncipe Pío, Plaza de España, Tribunal, Alonso Martínez, Núñez de Balboa]
+Time of trip: 26
+
+Shortest trip from: Bilbao, to: Goya
+[Bilbao, Alonso Martínez, Goya]
+Time of trip: 6
+
+Shortest trip from: Sol, to: Tres Olivos
+[Sol, Gran Vía, Alonso Martínez, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Tres Olivos]
+Time of trip: 20
+
+Shortest trip from: Guzmán el Bueno, to: Pacífico
+[Guzmán el Bueno, Cuatro Caminos, Nuevos Ministerios, Avenida de América, Diego de León, Manuel Becerra, Sainz de Baranda, Pacífico]
+Time of trip: 15
+
+Shortest trip from: Pacífico, to: Tribunal
+[Pacífico, Sainz de Baranda, Manuel Becerra, Diego de León, Núñez de Balboa, Alonso Martínez, Bilbao, Tribunal]
+Time of trip: 14
+
+Shortest trip from: Manuel Becerra, to: Núñez de Balboa
+[Manuel Becerra, Diego de León, Núñez de Balboa]
+Time of trip: 2
+
+Shortest trip from: Guzmán el Bueno, to: Legazpi
+[Guzmán el Bueno, Canal, San Bernardo, Noviciado, Ópera, Sol, Embajadores, Legazpi]
+Time of trip: 18
+
+Shortest trip from: Pitis, to: Mar de Cristal
+[Pitis, Guzmán el Bueno, Cuatro Caminos, Nuevos Ministerios, Colombia, Mar de Cristal]
+Time of trip: 22
+
+Shortest trip from: San Bernardo, to: Pacífico
+[San Bernardo, Bilbao, Alonso Martínez, Núñez de Balboa, Diego de León, Manuel Becerra, Sainz de Baranda, Pacífico]
+Time of trip: 14
+
+Shortest trip from: Nuevos Ministerios, to: Mirasierra
+[Nuevos Ministerios, Plaza de Castilla, Mirasierra]
+Time of trip: 13
+
+Shortest trip from: Mirasierra, to: Colombia
+[Mirasierra, Plaza de Castilla, Colombia]
+Time of trip: 12
+
+Shortest trip from: Nuevos Ministerios, to: Plaza de Castilla
+[Nuevos Ministerios, Plaza de Castilla]
+Time of trip: 5
+
+Shortest trip from: Estadio Metropolitano, to: Las Rosas
+[Estadio Metropolitano, Pueblo Nuevo, Ventas, Las Rosas]
+Time of trip: 22
+
+Shortest trip from: Bilbao, to: Ópera
+[Bilbao, San Bernardo, Noviciado, Ópera]
+Time of trip: 5
+
+Shortest trip from: Príncipe Pío, to: Valdecarros
+[Príncipe Pío, Ópera, Sol, Pacífico, Valdecarros]
+Time of trip: 35
+
+Shortest trip from: Alameda de Osuna, to: Ópera
+[Alameda de Osuna, Pueblo Nuevo, Ventas, Manuel Becerra, Goya, Príncipe de Vergara, Sol, Ópera]
+Time of trip: 24
+
+Shortest trip from: Estadio Metropolitano, to: Villaverde Alto
+[Estadio Metropolitano, Pueblo Nuevo, Ventas, Manuel Becerra, Sainz de Baranda, Pacífico, Legazpi, Villaverde Alto]
+Time of trip: 39
+
+Shortest trip from: Colombia, to: Embajadores
+[Colombia, Nuevos Ministerios, Gregorio Marañón, Alonso Martínez, Gran Vía, Sol, Embajadores]
+Time of trip: 13
+
+Shortest trip from: Núñez de Balboa, to: Alameda de Osuna
+[Núñez de Balboa, Diego de León, Manuel Becerra, Ventas, Pueblo Nuevo, Alameda de Osuna]
+Time of trip: 17
+
+Shortest trip from: Pitis, to: Núñez de Balboa
+[Pitis, Guzmán el Bueno, Cuatro Caminos, Nuevos Ministerios, Avenida de América, Diego de León, Núñez de Balboa]
+Time of trip: 20
+
+Shortest trip from: Chamartín, to: Las Rosas
+[Chamartín, Plaza de Castilla, Nuevos Ministerios, Avenida de América, Diego de León, Manuel Becerra, Ventas, Las Rosas]
+Time of trip: 22
+
+Shortest trip from: Alonso Martínez, to: Pinar de Chamartín
+[Alonso Martínez, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla, Chamartín, Pinar de Chamartín]
+Time of trip: 14
+
+Shortest trip from: Príncipe Pío, to: Moncloa
+[Príncipe Pío, Argüelles, Moncloa]
+Time of trip: 3
+
+Shortest trip from: Ventas, to: Las Rosas
+[Ventas, Las Rosas]
+Time of trip: 9
+
+Shortest trip from: Las Rosas, to: Manuel Becerra
+[Las Rosas, Ventas, Manuel Becerra]
+Time of trip: 10
+
+Shortest trip from: Núñez de Balboa, to: Plaza de Castilla
+[Núñez de Balboa, Avenida de América, Gregorio Marañón, Nuevos Ministerios, Plaza de Castilla]
+Time of trip: 10
+
+Shortest trip from: Gran Vía, to: Príncipe Pío
+[Gran Vía, Callao, Plaza de España, Príncipe Pío]
+Time of trip: 5
+
+
+
+--- Top 10 visited Stations: ---
+35 - Nuevos Ministerios
+30 - Alonso Martínez
+29 - Avenida de América
+26 - Manuel Becerra
+26 - Plaza de Castilla
+26 - Gregorio Marañón
+26 - Diego de León
+17 - Núñez de Balboa
+16 - Chamartín
+16 - Bilbao
