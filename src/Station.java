@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Station implements Comparable<Station> {
 
@@ -13,16 +14,16 @@ public class Station implements Comparable<Station> {
 	private int stationID;
 	private static int stationIDGen = 0;
 	
-	//the following are needed for the 
+	//the following are needed for the dijkstra algorithm
 	private int timeFromSource = Integer.MAX_VALUE;
 	private boolean visited;
-	private ArrayList<Connection> connections = new ArrayList<Connection>();
-	private ArrayList<Station> stationsFromSource = new ArrayList<Station>();
+	private ArrayList<Station> stationsFromSource;
 	
 	public Station(String name) {
 		this.name = name;
 		connectedStations = new ArrayList<Station>();
 		connectionTimes = new HashMap<Station, Integer>();
+		stationsFromSource = new ArrayList<Station>();
 		this.stationID = stationIDGen;
 		stationIDGen++;
 	}
@@ -82,21 +83,17 @@ public class Station implements Comparable<Station> {
 	}
 	public ArrayList<Connection> getConnections(){
 		ArrayList<Connection> connections = new ArrayList<Connection>();
-		Iterator it = this.connectionTimes.entrySet().iterator();
+		Iterator<Entry<Station, Integer>> it = this.connectionTimes.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Station, Integer> pair= (Map.Entry<Station, Integer>)it.next();
 			Connection newConnection = new Connection(this, pair.getKey(),pair.getValue());
 			connections.add(newConnection);
 		}
-		
 		return connections;
 	}
 	
 	public int getTimeToConnection(Station connectedStation) {
 		return this.getConnectionTimes().get(connectedStation);
-	}
-	public void setConnections(ArrayList<Connection> connections) {
-		this.connections = connections;
 	}
 	
 	public ArrayList<Station> getStationsFromSource(){
