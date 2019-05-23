@@ -12,42 +12,48 @@ import java.util.Set;
 import org.json.simple.JSONObject;
 
 public class RobotDelivery {
-
-	public static void main(String[] args) {
+	
+	public static Set<Robot> setupRobots(String robotsFilename, SubwayStationsReader ssr) {
 		
-		SubwayStationsReader ssr = new SubwayStationsReader("metro_lines.json");
-    	Graph graph = new Graph(ssr.allConnections, ssr.allStationsList);
-    	DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
-    	
-    	TripReader tr = new TripReader("trip_records.json");
-    	Map<Integer, List<String>> allTrips = tr.getTrips();
-    	Map<String, Station> allStations = ssr.allStations;
-    	
-    	OrdersReader or = new OrdersReader("orders.jsonl", ssr);
-    	//OrdersReader or = new OrdersReader("orders_small.jsonl", ssr);
-    	RobotReader rr = new RobotReader("robots.jsonl", ssr);
-    	    	
-    	ArrayList<Order> ordersSorted = new ArrayList<Order>();
-    	for (int i = 0; i<or.getOrders().size();i++) {
-    		ordersSorted.add(or.getOrders().get(i));
-    	}
-    	
-    	Map<Integer, Robot> allRobots = rr.getRobots();
+		RobotReader rr = new RobotReader(robotsFilename, ssr);
+		
+		Map<Integer, Robot> allRobots = rr.getRobots();
     	
     	Set<Robot> robots = new HashSet<Robot>();
     	int numRobots = allRobots.size();
     	for (int i=0;i < numRobots;i++) {
     		robots.add(allRobots.get(i));
     	}
-   
+    	return robots;
+	}
+	
+	public static ArrayList<Order> sortOrders(String ordersFilename, SubwayStationsReader ssr){
+		
+		OrdersReader or = new OrdersReader(ordersFilename, ssr);
+		ArrayList<Order> ordersSorted = new ArrayList<Order>();
+    	for (int i = 0; i<or.getOrders().size();i++) {
+    		ordersSorted.add(or.getOrders().get(i));
+    	}
+    	
+    	return ordersSorted;
+	}
+	
+	public static void randomStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename) {
+		
+		Graph graph = new Graph(ssr.allConnections, ssr.allStationsList);
+    	DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
+
+    	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
+    	
+    	Set<Robot> robots = setupRobots(robotsFilename, ssr);
     	
     	// time loop - increase time by packages have not been delivered
     	boolean allPackagesDelivered = false;
-    	int numPackages = or.getOrders().size();
+    	int numPackages = ordersSorted.size();
     	int numPackagesDelivered = 0;
-    	Map<Integer, ArrayList<JSONObject>> results = new HashMap<Integer, ArrayList<JSONObject>>();
     	int time = 0;
     	int longestDelivery = 0;
+    	
     	while (!allPackagesDelivered) {
     		
     		System.out.println("\n--- Time is: " + time + " ---");
@@ -160,7 +166,7 @@ public class RobotDelivery {
     		if (allPackagesDelivered == true) {
     			System.out.println("Total time: " + time);
     			 try (FileWriter file = new FileWriter("deliveryLog.jsonl")) {
-    				 for (Robot robot : rr.getRobots().values()) {
+    				 for (Robot robot : robots) {
     					 ArrayList<JSONObject> log = robot.getDeliveryLog();
     					 for (JSONObject logLine : log) {
     						 file.write(logLine.toJSONString() + "\n");
@@ -175,19 +181,31 @@ public class RobotDelivery {
     		}
     		time++;
     	}
-/*    	System.out.println("\nLongestDelivery: "+longestDelivery);
-    	System.out.println(allRobots.get(0).getOrders());
-    	for (Order order : allRobots.get(0).getOrders()) {
-    		System.out.println(order.getId() + " Dest: " + order.getDestination());
-    	}
- */
+		
+	}
+
+	public static void main(String[] args) {
+		
+		SubwayStationsReader ssr = new SubwayStationsReader("metro_lines.json");
+    	     	
+    	//OrdersReader or = new OrdersReader("orders.jsonl", ssr);
     	
+		String robotsFile = "robots.jsonl";
+		String ordersFile = "orders_small.jsonl";
+		//String ordersFile = "orders.jsonl";
     	/*
-    	 * Highscores:
-    	 * 
-    	 * Random Strategy (full order set) - Total time: 45327
-    	 * Random Strategy (1000 order set) - Total time: 539
+    	 * Choose one of the following strategies
     	 */
+    	randomStrategy(ssr, robotsFile, ordersFile);
+    	
+    	/*******
+    	 * 
+    	 * Strategy Highscores:
+    	 * 
+    	 * randomStrategy (orders.jsonl) - Total time: 45327
+    	 * randomStrategy (orders_small.jsonl) - Total time: 539
+    	 *
+    	 ******/
 	}
 
 }
