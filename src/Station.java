@@ -1,8 +1,10 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 public class Station implements Comparable<Station> {
@@ -13,6 +15,9 @@ public class Station implements Comparable<Station> {
 	private Map<Station, Integer> connectionTimes;
 	private int stationID;
 	private static int stationIDGen = 0;
+	
+	private Set<Order> ordersAtThisStation;
+	private Set<Order> deliveredOrders;
 	
 	//the following are needed for the dijkstra algorithm
 	private int timeFromSource = Integer.MAX_VALUE;
@@ -26,6 +31,9 @@ public class Station implements Comparable<Station> {
 		stationsFromSource = new ArrayList<Station>();
 		this.stationID = stationIDGen;
 		stationIDGen++;
+		
+		ordersAtThisStation = new HashSet<Order>();
+		deliveredOrders = new HashSet<Order>();
 	}
 	
 	@Override
@@ -50,6 +58,24 @@ public class Station implements Comparable<Station> {
 	
 	public SubwayLine getLine() {
 		return line;
+	}
+	
+	public Set<Order> getOrders(){
+		return ordersAtThisStation;
+	}
+	
+	public void removeOrder(Order order) {
+		ordersAtThisStation.remove(order);
+	}
+	public void addOrder(Order order) {
+		ordersAtThisStation.add(order);
+	}
+	
+	public Set<Order> getDeliveredOrders(){
+		return deliveredOrders;
+	}
+	public void addDeliveredOrder(Order order) {
+		deliveredOrders.add(order);
 	}
 	
 	public void addConnectedStation(Station name) {
@@ -81,15 +107,31 @@ public class Station implements Comparable<Station> {
 	public void setVisited(boolean visited) {
 		this.visited = visited;
 	}
-	public ArrayList<Connection> getConnections(){
+	public ArrayList<Connection> getConnections(SubwayStationsReader ssr){
 		ArrayList<Connection> connections = new ArrayList<Connection>();
-		Iterator<Entry<Station, Integer>> it = this.connectionTimes.entrySet().iterator();
+		for(Connection connection : ssr.allConnections) {
+			if (connection.getOrigin() == this) {
+				connections.add(connection);
+			}
+		}
+	/*	Iterator<Entry<Station, Integer>> it = this.connectionTimes.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Station, Integer> pair= (Map.Entry<Station, Integer>)it.next();
 			Connection newConnection = new Connection(this, pair.getKey(),pair.getValue());
 			connections.add(newConnection);
 		}
+	*/
 		return connections;
+	}
+	public String getLineForConnection(Station connectedStation, SubwayStationsReader ssr) {
+		String line = "";
+		ArrayList<Connection> connections = getConnections(ssr);
+		for (Connection connection : connections) {
+			if (connection.getOrigin() == this && connection.getDestination() == connectedStation) {
+				line = connection.getLine();
+			}
+		}
+		return line;
 	}
 	
 	public int getTimeToConnection(Station connectedStation) {
