@@ -192,6 +192,7 @@ public class DijkstraAlgorithm {
         	} else if((timeFromCurrentConnectedToDestination+timeFromOriginToCurrent == shortestTimeToDestination)) {
         		connectedStations.add(currentConnectedStation);
         		hasMultiplePaths = true;
+        		
         	}
         	
         	//System.out.println("Shortest Time is "+shortestTimeToDestination+ " stations are: "+connectedStations);
@@ -202,7 +203,10 @@ public class DijkstraAlgorithm {
         	//System.out.println("Has multiple Paths.");
         }
     	Collections.sort(connectedStations);
-    	//System.out.println("Sorted Stations: "+connectedStations);
+    	if(connectedStations.size() > 1) {
+    //		System.out.println(origin + " is a crossroad. Possible paths from here: " + connectedStations 
+    //				+ " Time from here to destination: "+shortestTimeToDestination);
+    	}
     	returnStation = connectedStations.get(0);
         //System.out.println("Best connection is: "+returnStation+"\n");
         if (returnStation == destination) {
@@ -328,5 +332,5 @@ public class DijkstraAlgorithm {
     	for(Map.Entry<Station, Integer> entry : sortedMap.entrySet()) {
     		System.out.println(entry.getValue() + " - " + entry.getKey());
     		}
-    	}
+    }  
     }

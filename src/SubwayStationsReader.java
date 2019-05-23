@@ -85,9 +85,9 @@ public class SubwayStationsReader {
     					int timeDifference = (int) (followingTime - time);
     					currentStation.addConnectionTime(followingStation, timeDifference);
     					
-    					Connection newConnection = new Connection(currentStation, followingStation, timeDifference);
+    					Connection newConnection = new Connection(currentStation, followingStation, timeDifference, newLine.getName());
     					allConnections.add(newConnection);
-    					Connection newConnectionReverse = new Connection(followingStation, currentStation, timeDifference);
+    					Connection newConnectionReverse = new Connection(followingStation, currentStation, timeDifference, newLine.getName());
     					allConnections.add(newConnectionReverse);
 
     				// if it is the last item, only add the previous station to the connections
@@ -127,9 +127,9 @@ public class SubwayStationsReader {
     					int timeDifference = (int) (followingTime - time);
     					currentStation.addConnectionTime(followingStation, timeDifference);
     					
-    					Connection newConnection = new Connection(currentStation, followingStation, timeDifference);
+    					Connection newConnection = new Connection(currentStation, followingStation, timeDifference, newLine.getName());
     					allConnections.add(newConnection);
-    					Connection newConnectionReverse = new Connection(followingStation, currentStation, timeDifference);
+    					Connection newConnectionReverse = new Connection(followingStation, currentStation, timeDifference, newLine.getName());
     					allConnections.add(newConnectionReverse);
     					
     					JSONObject previousStationLine = (JSONObject) stations.get(j-1);
@@ -186,10 +186,16 @@ public class SubwayStationsReader {
     	System.out.println();
     	System.out.println("Total Connections: "+ ssr.allConnections.size());
     	System.out.println("Total Stations: " + ssr.allStations.size());
-    	System.out.println(ssr.allStations.get("Guzmán el Bueno").getConnections());
+    	
     	
     	System.out.println(ssr.allStations.get("Las Rosas").getTimeToConnection(ssr.allStations.get("Ventas")));
     	System.out.println(ssr.allStations.get("Chamartín").getConnectionTimes());
+    	
+    	System.out.println(ssr.allStations.get("Guzmán el Bueno").getConnections(ssr));
+    	for (Connection connection : ssr.allStations.get("Guzmán el Bueno").getConnections(ssr)) {
+    		System.out.println(connection.getDestination());
+    	}
+    	System.out.println("line " + ssr.allStations.get("Guzmán el Bueno").getLineForConnection(ssr.allStations.get("Pitis"), ssr));
     }
 
 
