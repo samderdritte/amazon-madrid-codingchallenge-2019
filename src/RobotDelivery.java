@@ -38,7 +38,7 @@ public class RobotDelivery {
     	return ordersSorted;
 	}
 	
-	public static void randomStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename) {
+	public static void randomStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename, boolean debugMode) {
 		
 		Graph graph = new Graph(ssr.allConnections, ssr.allStationsList);
     	DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
@@ -98,7 +98,10 @@ public class RobotDelivery {
     			
     			// if the robot is unavailable (== travelling), then go to the next robot
     			if (robot.getNextAvailableTime() > time) {
-    				System.out.println("{" + robot + " is moving.}");
+    				if(debugMode) {
+    					System.out.println("{" + robot + " is moving.}");
+    				}
+    				
     				continue;
     			
     				// if the robot is available then start his work loop
@@ -121,7 +124,7 @@ public class RobotDelivery {
         		    			currentStation.removeOrder(orderToPick);
         		    			robot.decreaseCapacity();
         		    		}
-        					robot.pickOrder(ordersToPick);
+        					robot.pickOrder(ordersToPick, debugMode);
 
     					}   					
     					if ((robot.getCapacity()) == 10 && (currentStation.getOrders().size() == 0)) {
@@ -133,7 +136,7 @@ public class RobotDelivery {
     						Iterator<Order> iterator = ordersOfThisRobot.iterator();    			
     						Order orderToDeliver = (Order) iterator.next();
     		    			robot.setNewDestination(orderToDeliver.getDestination());
-    		    			robot.travelToNextDestination(dijkstra, ssr);
+    		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
     		    			//System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
 
     					}
@@ -142,9 +145,9 @@ public class RobotDelivery {
     					
     					// if the robot is at the next destination
     					if (currentStation == robot.getDestination()) {
-    						robot.deliverOrders();
+    						robot.deliverOrders(debugMode);
     					} else {
-    						robot.travelToNextDestination(dijkstra, ssr);
+    						robot.travelToNextDestination(dijkstra, ssr, debugMode);
     					}
     					//System.out.println("Robot " + robot.getId() + " is NOT at homebase.");
     					//System.out.println(robot.getNextAvailableTime());
@@ -187,16 +190,23 @@ public class RobotDelivery {
 	public static void main(String[] args) {
 		
 		SubwayStationsReader ssr = new SubwayStationsReader("metro_lines.json");
-    	     	
-    	//OrdersReader or = new OrdersReader("orders.jsonl", ssr);
-    	
+    	     	    	
 		String robotsFile = "robots.jsonl";
+		
+		/*
+		 * Choose one of the order set files below
+		 */
 		String ordersFile = "orders_small.jsonl";
 		//String ordersFile = "orders.jsonl";
-    	/*
+    	
+		/*
     	 * Choose one of the following strategies
+    	 * true/false for debugMode (verbose printouts in the console if true)
     	 */
-    	randomStrategy(ssr, robotsFile, ordersFile);
+		
+    	randomStrategy(ssr, robotsFile, ordersFile, true);
+    	
+    	
     	
     	/*******
     	 * 

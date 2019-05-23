@@ -100,7 +100,7 @@ public class Robot {
 		this.capacity += capacity;
 	}
 	
-	public void pickOrder(ArrayList<Order> newOrders) {
+	public void pickOrder(ArrayList<Order> newOrders, boolean debugMode) {
 		
 		for(Order order : newOrders) {
 			orders.add(order);
@@ -110,10 +110,13 @@ public class Robot {
 			ordersArray[i] = newOrders.get(i).getId();
 		}
 		
-		System.out.println("{\"time\": " + nextAvailableTime 
-				+ ",\"robot\":" + id 
-				+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
-		JSONObject line = new JSONObject();
+		if(debugMode) {
+			System.out.println("{\"time\": " + nextAvailableTime 
+					+ ",\"robot\":" + id 
+					+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+
+		}
+				JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
 		line.put("verb", "pick");
@@ -123,7 +126,7 @@ public class Robot {
 		nextAvailableTime++;
 	}
 	
-	public void deliverOrders() {
+	public void deliverOrders(boolean debugMode) {
 		ArrayList<Order> deliveredOrders = new ArrayList<Order>();
 		Collection<Order> ordersToRemove = new LinkedList<Order>(deliveredOrders);
 		for (Order order : orders) {
@@ -139,7 +142,10 @@ public class Robot {
 		for (int i = 0; i < deliveredOrders.size(); i++) {
 			ordersArray[i] = deliveredOrders.get(i).getId();
 		}
-		System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+		if(debugMode) {
+			System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+			
+		}
 		JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
@@ -151,7 +157,7 @@ public class Robot {
 		nextAvailableTime++;
 	}
 	
-	public void travelToNextDestination(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr) {
+	public void travelToNextDestination(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr, boolean debugMode) {
 		
 		Station destination =  currentDestination;
 		Station origin = currentLocation;	
@@ -159,7 +165,10 @@ public class Robot {
     	LinkedList<Station> path2 = dijkstra.getAlphabeticalPath(origin, destination);
     	
     	Station nextStation = path2.get(1);
-    	System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"go\",\"line\":" + "\""+origin.getLineForConnection(nextStation, ssr)+"\",\"station\":" + nextStation +"}");
+    	if(debugMode) {
+    		System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"go\",\"line\":" + "\""+origin.getLineForConnection(nextStation, ssr)+"\",\"station\":" + nextStation +"}");
+        	
+    	}
     	JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
