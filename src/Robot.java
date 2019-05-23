@@ -1,9 +1,12 @@
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+
+import org.json.simple.JSONObject;
 
 public class Robot {
 	private int id;
@@ -13,6 +16,7 @@ public class Robot {
 	private int capacity;
 	private int nextAvailableTime;
 	private Set<Order> orders;
+	private ArrayList<JSONObject> deliveryLog;
 	
 	public Robot(int id, Station homebase, int capacity) {
 		this.id = id;
@@ -20,6 +24,7 @@ public class Robot {
 		this.currentLocation = homebase;
 		this.capacity = capacity;
 		orders = new HashSet<Order>();
+		deliveryLog = new ArrayList<JSONObject>();
 	}
 	
 	@Override
@@ -71,6 +76,9 @@ public class Robot {
 	public int getNextAvailableTime() {
 		return nextAvailableTime;
 	}
+	public ArrayList<JSONObject> getDeliveryLog(){
+		return deliveryLog;
+	}
 	
 
 	/*
@@ -102,9 +110,16 @@ public class Robot {
 			ordersArray[i] = newOrders.get(i).getId();
 		}
 		
-		System.out.println("{\"time\": " + nextAvailableTime 
-				+ ",\"robot\":" + id 
-				+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+	//	System.out.println("{\"time\": " + nextAvailableTime 
+	//			+ ",\"robot\":" + id 
+	//			+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+		JSONObject line = new JSONObject();
+		line.put("time", nextAvailableTime);
+		line.put("robot", id);
+		line.put("verb", "pick");
+		line.put("orders", Arrays.toString(ordersArray));
+		deliveryLog.add(line);
+		
 		nextAvailableTime++;
 	}
 	
@@ -124,7 +139,13 @@ public class Robot {
 		for (int i = 0; i < deliveredOrders.size(); i++) {
 			ordersArray[i] = deliveredOrders.get(i).getId();
 		}
-		System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+		//System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+		JSONObject line = new JSONObject();
+		line.put("time", nextAvailableTime);
+		line.put("robot", id);
+		line.put("verb", "drop");
+		line.put("orders", Arrays.toString(ordersArray));
+		deliveryLog.add(line);
 		
 		currentDestination = homebase;
 		nextAvailableTime++;
@@ -138,7 +159,14 @@ public class Robot {
     	LinkedList<Station> path2 = dijkstra.getAlphabeticalPath(origin, destination);
     	
     	Station nextStation = path2.get(1);
-    	System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"go\",\"line\":" + "\""+origin.getLineForConnection(nextStation, ssr)+"\",\"station\":" + nextStation +"}");
+    	//System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"go\",\"line\":" + "\""+origin.getLineForConnection(nextStation, ssr)+"\",\"station\":" + nextStation +"}");
+    	JSONObject line = new JSONObject();
+		line.put("time", nextAvailableTime);
+		line.put("robot", id);
+		line.put("verb", "go");
+		line.put("line", origin.getLineForConnection(nextStation, ssr));
+		line.put("station", nextStation);
+		deliveryLog.add(line);
     	int timeToNextStation = origin.getTimeToConnection(nextStation);
     	//System.out.println("time to next" + timeToNextStation);
     	nextAvailableTime += timeToNextStation;

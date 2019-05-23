@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.json.simple.JSONObject;
 
 public class RobotDelivery {
 
@@ -19,7 +23,8 @@ public class RobotDelivery {
     	Map<Integer, List<String>> allTrips = tr.getTrips();
     	Map<String, Station> allStations = ssr.allStations;
     	
-    	OrdersReader or = new OrdersReader("orders_small.jsonl", ssr);
+    	OrdersReader or = new OrdersReader("orders.jsonl", ssr);
+    	//OrdersReader or = new OrdersReader("orders_small.jsonl", ssr);
     	RobotReader rr = new RobotReader("robots.jsonl", ssr);
     	    	
     	ArrayList<Order> ordersSorted = new ArrayList<Order>();
@@ -40,6 +45,7 @@ public class RobotDelivery {
     	boolean allPackagesDelivered = false;
     	int numPackages = or.getOrders().size();
     	int numPackagesDelivered = 0;
+    	Map<Integer, ArrayList<JSONObject>> results = new HashMap<Integer, ArrayList<JSONObject>>();
     	int time = 0;
     	int longestDelivery = 0;
     	while (!allPackagesDelivered) {
@@ -86,7 +92,7 @@ public class RobotDelivery {
     			
     			// if the robot is unavailable (== travelling), then go to the next robot
     			if (robot.getNextAvailableTime() > time) {
-    				System.out.println("{" + robot + " is moving.}");
+    				//System.out.println("{" + robot + " is moving.}");
     				continue;
     			
     				// if the robot is available then start his work loop
@@ -94,7 +100,7 @@ public class RobotDelivery {
     				
     				// check if at homebase
     				if (currentStation == robot.getHomebase()) {
-    					System.out.println(robot + " is at homebase.");
+    					//System.out.println(robot + " is at homebase.");
     					
     					// pick up packages while the robot has space and the location has packages
     					// random pick any package --> implement better algorithm later
@@ -122,7 +128,7 @@ public class RobotDelivery {
     						Order orderToDeliver = (Order) iterator.next();
     		    			robot.setNewDestination(orderToDeliver.getDestination());
     		    			robot.travelToNextDestination(dijkstra, ssr);
-    		    			System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
+    		    			//System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
 
     					}
     					    					
@@ -153,6 +159,18 @@ public class RobotDelivery {
     		
     		if (allPackagesDelivered == true) {
     			System.out.println("Total time: " + time);
+    			 try (FileWriter file = new FileWriter("deliveryLog.jsonl")) {
+    				 for (Robot robot : rr.getRobots().values()) {
+    					 ArrayList<JSONObject> log = robot.getDeliveryLog();
+    					 for (JSONObject logLine : log) {
+    						 file.write(logLine.toJSONString() + "\n");
+    						 
+    					 }
+    	    			}
+    		        } catch (IOException e) {
+    		            e.printStackTrace();
+    		        }
+    			
     			break;
     		}
     		time++;
