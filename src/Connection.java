@@ -9,11 +9,13 @@ public class Connection {
 	public Station origin;
 	public Station destination;
 	public int time;
+	public String line;
 	
-	public Connection(Station origin, Station destination, int time) {
+	public Connection(Station origin, Station destination, int time, String line) {
 		this.origin = origin;
 		this.destination = destination;
 		this.time = time;
+		this.line = line;
 	}
 	
 	public Station getOrigin() {
@@ -24,6 +26,9 @@ public class Connection {
 	}
 	public int getTime() {
 		return time;
+	}
+	public String getLine() {
+		return line;
 	}
 	
 	// gets the connected Station of this connection, based on the two stations
