@@ -92,7 +92,7 @@ public class RobotDelivery {
     			
     			// if the robot is unavailable (== travelling), then go to the next robot
     			if (robot.getNextAvailableTime() > time) {
-    				//System.out.println("{" + robot + " is moving.}");
+    				System.out.println("{" + robot + " is moving.}");
     				continue;
     			
     				// if the robot is available then start his work loop

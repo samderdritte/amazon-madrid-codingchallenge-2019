@@ -110,9 +110,9 @@ public class Robot {
 			ordersArray[i] = newOrders.get(i).getId();
 		}
 		
-	//	System.out.println("{\"time\": " + nextAvailableTime 
-	//			+ ",\"robot\":" + id 
-	//			+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+		System.out.println("{\"time\": " + nextAvailableTime 
+				+ ",\"robot\":" + id 
+				+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
 		JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
@@ -139,7 +139,7 @@ public class Robot {
 		for (int i = 0; i < deliveredOrders.size(); i++) {
 			ordersArray[i] = deliveredOrders.get(i).getId();
 		}
-		//System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");
+		System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");
 		JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
@@ -159,7 +159,7 @@ public class Robot {
     	LinkedList<Station> path2 = dijkstra.getAlphabeticalPath(origin, destination);
     	
     	Station nextStation = path2.get(1);
-    	//System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"go\",\"line\":" + "\""+origin.getLineForConnection(nextStation, ssr)+"\",\"station\":" + nextStation +"}");
+    	System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"go\",\"line\":" + "\""+origin.getLineForConnection(nextStation, ssr)+"\",\"station\":" + nextStation +"}");
     	JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
