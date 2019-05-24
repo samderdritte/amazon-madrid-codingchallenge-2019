@@ -15,7 +15,7 @@ public class Robot {
 	private Station homebase;
 	private int capacity;
 	private int nextAvailableTime;
-	private Set<Order> orders;
+	private ArrayList<Order> orders;
 	private ArrayList<JSONObject> deliveryLog;
 	
 	public Robot(int id, Station homebase, int capacity) {
@@ -23,7 +23,7 @@ public class Robot {
 		this.homebase = homebase;
 		this.currentLocation = homebase;
 		this.capacity = capacity;
-		orders = new HashSet<Order>();
+		orders = new ArrayList<Order>();
 		deliveryLog = new ArrayList<JSONObject>();
 	}
 	
@@ -69,7 +69,7 @@ public class Robot {
 		this.capacity = capacity;
 	}
 	
-	public Set<Order> getOrders(){
+	public ArrayList<Order> getOrders(){
 		return this.orders;
 	}
 	
@@ -126,7 +126,7 @@ public class Robot {
 		nextAvailableTime++;
 	}
 	
-	public void deliverOrders(boolean debugMode) {
+	public void deliverOrders(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr, boolean debugMode) {
 		ArrayList<Order> deliveredOrders = new ArrayList<Order>();
 		Collection<Order> ordersToRemove = new LinkedList<Order>(deliveredOrders);
 		for (Order order : orders) {
@@ -153,7 +153,12 @@ public class Robot {
 		line.put("orders", Arrays.toString(ordersArray));
 		deliveryLog.add(line);
 		
-		currentDestination = homebase;
+		if(orders.size() > 0) {
+			currentDestination = orders.get(0).getDestination();
+		} else {
+			currentDestination = getClosestHomebase(dijkstra, ssr);
+			homebase = currentDestination;
+		}
 		nextAvailableTime++;
 	}
 	
@@ -179,7 +184,27 @@ public class Robot {
     	int timeToNextStation = origin.getTimeToConnection(nextStation);
     	//System.out.println("time to next" + timeToNextStation);
     	nextAvailableTime += timeToNextStation;
-    	currentLocation = nextStation;
-    	
+    	currentLocation = nextStation;   	
+	}
+	
+	public Station getClosestHomebase(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr) {
+		ArrayList<Station> homebases = new ArrayList<Station>();
+		homebases.add(ssr.allStations.get("Argüelles"));
+		homebases.add(ssr.allStations.get("Plaza de Castilla"));
+		homebases.add(ssr.allStations.get("Diego de León"));
+		homebases.add(ssr.allStations.get("Sol"));
+		int distanceToNextBase = Integer.MAX_VALUE;
+		Station closestBase = homebases.get(0);
+		for (Station station: homebases) {
+			if(currentLocation == station) {
+				return station;
+			}
+			LinkedList<Station> path = dijkstra.getAlphabeticalPath(currentLocation, station);
+			if (dijkstra.getTimeOfTrip(path) < distanceToNextBase) {
+				distanceToNextBase = dijkstra.getTimeOfTrip(path);
+				closestBase = station;
+			}
+		}		
+		return closestBase;
 	}
 }

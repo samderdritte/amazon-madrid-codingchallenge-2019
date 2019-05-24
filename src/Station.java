@@ -18,6 +18,7 @@ public class Station implements Comparable<Station> {
 	
 	private Set<Order> ordersAtThisStation;
 	private Set<Order> deliveredOrders;
+	private ArrayList<Order> listOfOrdersAtThisStation;
 	
 	//the following are needed for the dijkstra algorithm
 	private int timeFromSource = Integer.MAX_VALUE;
@@ -34,6 +35,7 @@ public class Station implements Comparable<Station> {
 		
 		ordersAtThisStation = new HashSet<Order>();
 		deliveredOrders = new HashSet<Order>();
+		listOfOrdersAtThisStation = new ArrayList<Order>();
 	}
 	
 	@Override
@@ -71,6 +73,12 @@ public class Station implements Comparable<Station> {
 		ordersAtThisStation.add(order);
 	}
 	
+	public ArrayList<Order> getOrderList(){
+		for (Order order : ordersAtThisStation) {
+			listOfOrdersAtThisStation.add(order);
+		}
+		return listOfOrdersAtThisStation;
+	}
 	public Set<Order> getDeliveredOrders(){
 		return deliveredOrders;
 	}
