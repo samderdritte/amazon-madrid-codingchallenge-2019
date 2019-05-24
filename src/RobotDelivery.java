@@ -132,13 +132,12 @@ public class RobotDelivery {
 	}
 	
 	public static void randomStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename, boolean debugMode) {
-		
-		Graph graph = new Graph(ssr.allConnections, ssr.allStationsList);
-    	DijkstraAlgorithm dijkstra = new DijkstraAlgorithm(graph);
 
     	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
     	
     	ArrayList<Robot> robots = setupRobots(robotsFilename, ssr);
+    	
+    	ShortestPaths sp = new ShortestPaths(ssr);
     	
     	boolean allPackagesDelivered = false;
     	int numPackages = ordersSorted.size();
@@ -217,7 +216,7 @@ public class RobotDelivery {
     						Iterator<Order> iterator = ordersOfThisRobot.iterator();    			
     						Order orderToDeliver = (Order) iterator.next();
     		    			robot.setNewDestination(orderToDeliver.getDestination());
-    		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
+    		    			robot.travelToNextDestination(sp, ssr, debugMode);
     		    			//System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
 
     					}
@@ -226,9 +225,9 @@ public class RobotDelivery {
     					
     					// if the robot is at the next destination
     					if (currentStation == robot.getDestination()) {
-    						robot.deliverOrders(dijkstra, ssr, debugMode);
+    						robot.deliverOrders(sp, ssr, debugMode);
     					} else {
-    						robot.travelToNextDestination(dijkstra, ssr, debugMode);
+    						robot.travelToNextDestination(sp, ssr, debugMode);
     					}
     					//System.out.println("Robot " + robot.getId() + " is NOT at homebase.");
     					//System.out.println(robot.getNextAvailableTime());
@@ -276,6 +275,8 @@ public class RobotDelivery {
     	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
     	
     	ArrayList<Robot> robots = setupRobots(robotsFilename, ssr);
+    	
+    	ShortestPaths sp = new ShortestPaths(ssr);
     	
     	boolean allPackagesDelivered = false;
     	int numPackages = ordersSorted.size();
@@ -346,7 +347,7 @@ public class RobotDelivery {
         							robot.resetWaitTime();
         							Order orderToDeliver = robot.getOrders().get(0);
         							robot.setNewDestination(orderToDeliver.getDestination());
-            		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
+            		    			robot.travelToNextDestination(sp, ssr, debugMode);
         						} else {
         							robot.increaseAvailableTime();
         							robot.increaseWaitTime();
@@ -371,12 +372,12 @@ public class RobotDelivery {
     							System.out.println(robot + " has waited too long. (" + robot.getWaitTime() + " minutes)");
     							robot.resetWaitTime();
     							if(robot.getCurrentLocation().getOrders().size() == 0) {
-    								Station newDestination = robot.getClosestHomebase(dijkstra, ssr);
+    								Station newDestination = robot.getClosestHomebase(sp, ssr);
     								robot.setNewDestination(newDestination);
     							} else {
     								Order orderToDeliver = robot.getOrders().get(0);
         							robot.setNewDestination(orderToDeliver.getDestination());
-            		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
+            		    			robot.travelToNextDestination(sp, ssr, debugMode);
     							}
     							
     						} else {
@@ -404,7 +405,7 @@ public class RobotDelivery {
     						} 			
     						Order orderToDeliver = closestOrder;
     		    			robot.setNewDestination(orderToDeliver.getDestination());
-    		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
+    		    			robot.travelToNextDestination(sp, ssr, debugMode);
     		    			//System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
 
     					}
@@ -413,9 +414,9 @@ public class RobotDelivery {
     					
     					// if the robot is at the next destination
     					if (currentStation == robot.getDestination()) {
-    						robot.deliverOrders(dijkstra, ssr, debugMode);
+    						robot.deliverOrders(sp, ssr, debugMode);
     					} else {
-    						robot.travelToNextDestination(dijkstra, ssr, debugMode);
+    						robot.travelToNextDestination(sp, ssr, debugMode);
     					}
     					//System.out.println("Robot " + robot.getId() + " is NOT at homebase.");
     					//System.out.println(robot.getNextAvailableTime());
@@ -475,11 +476,223 @@ public class RobotDelivery {
     		
 	}
 	
+	public static void selectClosestStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename, boolean debugMode) {
+
+    	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
+    	
+    	ArrayList<Robot> robots = setupRobots(robotsFilename, ssr);
+    	
+    	ShortestPaths sp = new ShortestPaths(ssr);
+    	
+    	
+    	boolean allPackagesDelivered = false;
+    	int numPackages = ordersSorted.size();
+    	int numPackagesDelivered = 0;
+    	int time = 0;
+    	
+    	while (!allPackagesDelivered) {
+    		
+    		System.out.println("\n--- Time is: " + time + " ---");
+    		
+    		/**
+    		 * Orders loop
+    		 * While there are still orders, select the orders from the current time and do something with it
+    		 */
+
+    		while (ordersSorted.size() > 0 && ordersSorted.get(0).getTime() == time) {
+    			// select the first order from the sorted list of orders
+    			Order currentOrder = ordersSorted.get(0);
+    			
+    			// add the order to the Station of origin
+    			currentOrder.getOrigin().addOrder(currentOrder);   			
+    			
+    			// remove the top order from the sorted order list
+    			// this way you always have the latest order
+    			ordersSorted.remove(0);
+    		}
+    		
+    		/**
+    		 * Robot loop
+    		 */
+    		
+    		// select only one robot
+    		//Robot robot0 = robots.get(0);
+    		//robots = new ArrayList<Robot>();
+    		//robots.add(robot0);
+    		
+    		for (Robot robot : robots) {
+    			Station currentStation = robot.getCurrentLocation();
+    			//System.out.println("\n"+robot
+    			//		+ " Current Location: " + robot.getCurrentLocation()
+    			//		+ " Capacity: " + robot.getCapacity());
+    			
+    			
+    			// if the robot is unavailable (== travelling), then go to the next robot
+    			if (robot.getNextAvailableTime() > time) {
+    				if(debugMode) {
+    					System.out.println("{" + robot + " is moving.}");
+    				}   				
+    				continue;
+    			
+    			// if the robot is available then start his work loop
+    			} else {
+    				
+    				// check if at homebase
+    				if (currentStation == robot.getHomebase()) {
+    					//System.out.println(robot + " is at homebase.");
+    					
+    					// pick up packages while the robot has space and the location has packages
+    					// random pick any package --> implement better algorithm later
+    					ArrayList<Order> ordersToPick = new ArrayList<Order>();
+    					if(currentStation.getOrders().size() > 0) {
+    						
+    						// if robot is empty, take any order at random
+    						if(robot.getCapacity() == 10) {
+    							Iterator<Order> iterator = currentStation.getOrders().iterator();
+        						Order randomOrder = (Order) iterator.next();
+        						ordersToPick.add(randomOrder);
+        						currentStation.removeOrder(randomOrder);
+        						robot.decreaseCapacity();
+        						
+        						for(Order order : currentStation.getOrders()) {
+        							if (robot.getCapacity() > 0 && 
+        									(randomOrder.getDestination().getConnectedStations().contains(order.getDestination()))
+        									|| (randomOrder.getDestination() == order.getDestination())) {
+        								ordersToPick.add(order);
+        								robot.decreaseCapacity();
+        							}
+        							if (robot.getCapacity() == 0) {
+        								break;
+        							}
+        						}
+        						
+    						} else {
+    							Order lastOrderInList = robot.getOrders().get(robot.getOrders().size()-1);
+        						for(Order order : currentStation.getOrders()) {
+        							if (robot.getCapacity() > 0 && 
+        									(lastOrderInList.getDestination().getConnectedStations().contains(order.getDestination()))
+        									|| (lastOrderInList.getDestination() == order.getDestination())) {
+        								ordersToPick.add(order);
+        								robot.decreaseCapacity();
+        							}
+        							if (robot.getCapacity() == 0) {
+        								break;
+        							}
+        						}
+    						}
+    						if (ordersToPick.size() > 0) {
+    							robot.pickOrder(ordersToPick, debugMode);
+    						} else if (robot.getWaitTime() > 5){
+    							robot.resetWaitTime();
+    							Order nextOrder = robot.getOrders().get(0);
+        						robot.setNewDestination(nextOrder.getDestination());
+        						robot.travelToNextDestination(sp, ssr, debugMode);
+    						} else {
+    							robot.increaseAvailableTime();
+        						robot.increaseWaitTime();
+        						continue;
+    						}     					
+    					}
+    					if (robot.getCapacity() < 4) {
+    						robot.resetWaitTime();
+    						// if the robot has no more empty slots or there are no more packages available go forward
+    						ArrayList<Order> ordersOfThisRobot = robot.getOrders();
+    						int closestDistance = Integer.MAX_VALUE;
+    						Order closestOrder = ordersOfThisRobot.get(0);
+    						robot.setNewDestination(closestOrder.getDestination());
+    						for (Order order : ordersOfThisRobot) {
+    							if(sp.getShortestTime(robot.getDestination(), order.getDestination()) < closestDistance) {
+    								closestDistance = sp.getShortestTime(robot.getDestination(), order.getDestination());
+    								closestOrder = order;
+    							}
+    						} 			
+    						Order orderToDeliver = closestOrder;
+    		    			robot.setNewDestination(orderToDeliver.getDestination());
+    		    			robot.travelToNextDestination(sp, ssr, debugMode);
+    		    			//System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
+
+    					} else if (robot.getCapacity() != 10 && robot.getWaitTime() > 5) {
+							robot.resetWaitTime();
+							Order nextOrder = robot.getOrders().get(0);
+    						robot.setNewDestination(nextOrder.getDestination());
+    						robot.travelToNextDestination(sp, ssr, debugMode);
+						} else {
+    						robot.increaseAvailableTime();
+    						robot.increaseWaitTime();
+    						continue;
+    					}
+    					    					
+    				} else { // the robot is not at his homebase
+    					
+    					// if the robot is at the next destination
+    					if (currentStation == robot.getDestination()) {
+    						robot.deliverOrders(sp, ssr, debugMode);
+    					} else {
+    						robot.travelToNextDestination(sp, ssr, debugMode);
+    					}
+    					//System.out.println("Robot " + robot.getId() + " is NOT at homebase.");
+    					//System.out.println(robot.getNextAvailableTime());
+    				}
+    				
+    			}   			
+    		}
+    		
+    		/**
+    		 * End of round
+    		 * - check if all packages are delivered
+    		 * - end or continue
+    		 */
+    		numPackagesDelivered = 0;
+        	for (Station station : ssr.allStationsList) {
+        		numPackagesDelivered += station.getDeliveredOrders().size();
+        	}
+    		System.out.println("Delivered orders: " + numPackagesDelivered + " of " + numPackages);
+    		//if (time == 100) {
+    		if (numPackagesDelivered == numPackages) {
+    			allPackagesDelivered = true;
+    		}
+    		
+    		if (allPackagesDelivered == true) {
+    			System.out.println("Total time: " + time);
+    			 try (FileWriter file = new FileWriter("deliveryLog.jsonl")) {
+    				 for (Robot robot : robots) {
+    					 ArrayList<JSONObject> log = robot.getDeliveryLog();
+    					 for (JSONObject logLine : log) {
+    						 file.write(logLine.toJSONString() + "\n");
+    						 
+    					 }
+    	    			}
+    		        } catch (IOException e) {
+    		            e.printStackTrace();
+    		        }
+    			
+    			break;
+    		}
+    		time++;
+    		
+    		/*
+    		ArrayList<Station> homebases = new ArrayList<Station>();
+    		homebases.add(ssr.allStations.get("Argüelles"));
+    		homebases.add(ssr.allStations.get("Plaza de Castilla"));
+    		homebases.add(ssr.allStations.get("Diego de León"));
+    		homebases.add(ssr.allStations.get("Sol"));
+
+    		for (Station station: homebases) {
+    			System.out.println("Base: " + station + " has " + station.getOrders().size() + " orders available");
+    		}
+    		*/	
+    	}
+    		
+    		
+    		
+    		
+	}
 	public static void main(String[] args) {
 		
 		SubwayStationsReader ssr = new SubwayStationsReader("metro_lines.json");
     	     	    	
 		String robotsFile = "robots.jsonl";
+		
 		
 		/*
 		 * Choose one of the order set files below
@@ -493,8 +706,8 @@ public class RobotDelivery {
     	 */
 		
     	//randomStrategy(ssr, robotsFile, ordersFile, true);
-    	clusterStrategy(ssr, robotsFile, ordersFile, false);
-    	
+    	//clusterStrategy(ssr, robotsFile, ordersFile, false);
+    	selectClosestStrategy(ssr, robotsFile, ordersFile, true);
     	
     	/*******
     	 * 
@@ -507,6 +720,9 @@ public class RobotDelivery {
     	 * (algorithm not efficient on the large data set, gets
     	 * the job done, but takes very long to execute)
     	 * clusterStrategy (orders_small.jsonl) - 	Total time: 151
+    	 * 
+    	 * selectClosestStrategy (orders.jsonl) - 			Total time: 9786
+    	 * selectClosestStrategy (orders_small.jsonl) - 	Total time: 150
     	 * 
     	 ******/
 	}

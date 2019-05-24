@@ -114,6 +114,7 @@ public class Robot {
 		
 		for(Order order : newOrders) {
 			orders.add(order);
+			currentLocation.removeOrder(order);
 		}
 		int[] ordersArray = new int[newOrders.size()];
 		for (int i = 0; i < newOrders.size(); i++) {
@@ -136,7 +137,7 @@ public class Robot {
 		nextAvailableTime++;
 	}
 	
-	public void deliverOrders(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr, boolean debugMode) {
+	public void deliverOrders(ShortestPaths sp, SubwayStationsReader ssr, boolean debugMode) {
 		ArrayList<Order> deliveredOrders = new ArrayList<Order>();
 		Collection<Order> ordersToRemove = new LinkedList<Order>(deliveredOrders);
 		for (Order order : orders) {
@@ -166,18 +167,18 @@ public class Robot {
 		if(orders.size() > 0) {
 			currentDestination = orders.get(0).getDestination();
 		} else {
-			currentDestination = getClosestHomebase(dijkstra, ssr);
+			currentDestination = getClosestHomebase(sp, ssr);
 			homebase = currentDestination;
 		}
 		nextAvailableTime++;
 	}
 	
-	public void travelToNextDestination(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr, boolean debugMode) {
+	public void travelToNextDestination(ShortestPaths sp, SubwayStationsReader ssr, boolean debugMode) {
 		
 		Station destination =  currentDestination;
 		Station origin = currentLocation;	
     	
-    	LinkedList<Station> path2 = dijkstra.getAlphabeticalPath(origin, destination);
+    	LinkedList<Station> path2 = sp.getPath(origin, destination);
     	
     	Station nextStation = path2.get(1);
     	if(debugMode) {
@@ -197,7 +198,7 @@ public class Robot {
     	currentLocation = nextStation;   	
 	}
 	
-	public Station getClosestHomebase(DijkstraAlgorithm dijkstra, SubwayStationsReader ssr) {
+	public Station getClosestHomebase(ShortestPaths sp, SubwayStationsReader ssr) {
 		ArrayList<Station> homebases = new ArrayList<Station>();
 		homebases.add(ssr.allStations.get("Argüelles"));
 		homebases.add(ssr.allStations.get("Plaza de Castilla"));
@@ -212,9 +213,8 @@ public class Robot {
 			if(currentLocation == station) {
 				return station;
 			}
-			LinkedList<Station> path = dijkstra.getAlphabeticalPath(currentLocation, station);
-			if (dijkstra.getTimeOfTrip(path) < distanceToNextBase) {
-				distanceToNextBase = dijkstra.getTimeOfTrip(path);
+			if (sp.getShortestTime(currentLocation, station) < distanceToNextBase) {
+				distanceToNextBase = sp.getShortestTime(currentLocation, station);
 				closestBase = station;
 			}
 		}		

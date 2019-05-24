@@ -41,17 +41,17 @@ public class ShortestPaths {
     	System.out.println("Import complete.");
 	}
 	
-	public static LinkedList<Station> getPath(Station origin, Station destination) {
+	public LinkedList<Station> getPath(Station origin, Station destination) {
 		LinkedList<Station> shortestPath = allShortestPaths.get(origin).get(destination);		
 		return shortestPath;
 	}
 	
-	public static int getShortestTime(Station origin, Station destination) {
+	public int getShortestTime(Station origin, Station destination) {
 		LinkedList<Station> shortestPath = getPath(origin, destination);
 		return dijkstra.getTimeOfTrip(shortestPath);
 	}
 	
-	public static Station getClosestStation(Station origin) {
+	public Station getClosestStation(Station origin) {
 		int shortestTime = Integer.MAX_VALUE;
 		Station closestStation = origin;
 		HashMap<Station, Integer> shortestPath = allShortestTimes.get(origin);
@@ -87,9 +87,9 @@ public class ShortestPaths {
 		for (Station orig : allStations) {
     		for (Station dest : allStations) {
     			if(dest != orig) {
-    				if (getShortestTime(orig, dest) < threshold) {
-        				System.out.print(getShortestTime(orig, dest) + " ");
-        				System.out.println(getPath(orig, dest));
+    				if (sp.getShortestTime(orig, dest) < threshold) {
+        				System.out.print(sp.getShortestTime(orig, dest) + " ");
+        				System.out.println(sp.getPath(orig, dest));
         				count++;
         			}
     			}
@@ -108,9 +108,9 @@ public class ShortestPaths {
 		int count2 = 0;
 		for (Station dest : allStations) {
 			if(dest != base) {
-				if (getShortestTime(base, dest) > 10) {
-    				System.out.print(getShortestTime(base, dest) + " ");
-    				System.out.println(getPath(base, dest));
+				if (sp.getShortestTime(base, dest) > 10) {
+    				System.out.print(sp.getShortestTime(base, dest) + " ");
+    				System.out.println(sp.getPath(base, dest));
     				count2++;
     			}
 			}						
@@ -145,7 +145,7 @@ public class ShortestPaths {
 		Station valdecarros  = ssr.allStations.get("Valdecarros");
 		System.out.println(allShortestPaths.get(valdecarros));
 		
-		System.out.println(getClosestStation(arguelles));
+		System.out.println(sp.getClosestStation(arguelles));
 	}
 
 }
