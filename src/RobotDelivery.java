@@ -48,10 +48,77 @@ public class RobotDelivery {
 	 * @param dijkstra
 	 * @return
 	 */
-	public static ArrayList<Order> selectOrdersForLoading(Station currentStation, DijkstraAlgorithm dijkstra){
+	public static ArrayList<Order> selectOrdersForLoading(Robot robot, Station currentStation, DijkstraAlgorithm dijkstra){
 		// determine which orders should be loaded in this robot
 		Set<Order> availableOrders = currentStation.getOrders();
 		ArrayList<Order> ordersForLoading = new ArrayList<Order>();
+		
+		
+		int longestDistance = 0;
+		Order furthestOrder = currentStation.getOrderList().get(0);
+		Station furthestDestination = currentStation;
+		
+		/*
+		 * Check if the robot already has orders
+		 */
+		if (robot.getOrders().size() > 0) { // robot already has orders
+			furthestDestination = robot.getOrders().get(0).getDestination();
+			LinkedList<Station> path = dijkstra.getAlphabeticalPath(currentStation, furthestDestination);
+			longestDistance = dijkstra.getTimeOfTrip(path);
+		} else { // robot is empty
+			int loopLimit = 0;
+			for (Order order : availableOrders) {		
+				if (loopLimit < 10) {
+					Station origin = currentStation;
+			    	Station destination = order.getDestination();
+			    	LinkedList<Station> path = dijkstra.getAlphabeticalPath(origin, destination);
+			    	if(dijkstra.getTimeOfTrip(path) > longestDistance) {
+			    		longestDistance = dijkstra.getTimeOfTrip(path);
+			    		furthestDestination = order.getDestination();
+			    		furthestOrder = order;
+			    	}
+				} else {
+					break;
+				}
+		    	loopLimit++;
+			}
+			ordersForLoading.add(furthestOrder);
+			availableOrders.remove(furthestOrder);
+		}
+		/*
+		 * Get all orders within a certain range of the furthest Order
+		 */
+		// This is something to play with
+		int timeThresholdForCluster = 1;
+		if (longestDistance < 5) {
+			timeThresholdForCluster = 2;
+		} else if (longestDistance < 15) {
+			timeThresholdForCluster = 5;
+		} else if (longestDistance < 25) {
+			timeThresholdForCluster = 10;
+		} else if (longestDistance < 35) {
+			timeThresholdForCluster = 15;
+		} else {
+			timeThresholdForCluster = 20;
+		}
+		
+		int loopLimit = 0;
+		for (Order order : availableOrders) {
+			if (loopLimit < 10) {
+				Station origin = furthestDestination;
+				Station destination = order.getDestination();
+				if (origin == destination) {
+					ordersForLoading.add(order);
+					continue;
+				}
+				LinkedList<Station> path = dijkstra.getAlphabeticalPath(origin, destination);
+				if (dijkstra.getTimeOfTrip(path) <= timeThresholdForCluster) {
+					ordersForLoading.add(order);
+				}
+			} else {
+				break;
+			}			
+		}
 		
 		// TODO determine a logic for the selection of the route
 		/*
@@ -60,21 +127,6 @@ public class RobotDelivery {
 		 * else get the order with the furthest distance
 		 * 2. get all the orders within a certain range
 		 */
-		
-		
-		int longestDistance = 0;
-		Order furthestOrder = currentStation.getOrderList().get(0);
-		for (Order order : availableOrders) {
-			
-	    	Station origin = currentStation;
-	    	Station destination = order.getDestination();
-	    	LinkedList<Station> path = dijkstra.getAlphabeticalPath(origin, destination);
-	    	if(dijkstra.getTimeOfTrip(path) > longestDistance) {
-	    		longestDistance = dijkstra.getTimeOfTrip(path);
-	    		furthestOrder = order;
-	    	}
-		}
-		ordersForLoading.add(furthestOrder);
 		
 		return ordersForLoading;
 	}
@@ -256,9 +308,9 @@ public class RobotDelivery {
     		 */
     		
     		// select only one robot
-    		Robot robot0 = robots.get(0);
-    		robots = new ArrayList<Robot>();
-    		robots.add(robot0);
+    		//Robot robot0 = robots.get(0);
+    		//robots = new ArrayList<Robot>();
+    		//robots.add(robot0);
     		
     		for (Robot robot : robots) {
     			Station currentStation = robot.getCurrentLocation();
@@ -287,8 +339,21 @@ public class RobotDelivery {
     					ArrayList<Order> orderForLoading = new ArrayList<Order>();
     					if(currentStation.getOrders().size() > 0) {
     				
-    						orderForLoading = selectOrdersForLoading(currentStation, dijkstra);
-    						
+    						orderForLoading = selectOrdersForLoading(robot, currentStation, dijkstra);
+    						if(orderForLoading.size() == 0) {
+    							if(robot.getWaitTime() > 5) {
+        							System.out.println(robot + " has waited too long. (" + robot.getWaitTime() + " minutes)");
+        							robot.resetWaitTime();
+        							Order orderToDeliver = robot.getOrders().get(0);
+        							robot.setNewDestination(orderToDeliver.getDestination());
+            		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
+        						} else {
+        							robot.increaseAvailableTime();
+        							robot.increaseWaitTime();
+            						continue;
+        						}
+    							
+    						}
     						while ((orderForLoading.size() > 0) && (robot.getCapacity() > 0)) {
         						Iterator<Order> iterator = orderForLoading.iterator();    			
         		    			Order orderToPick = (Order) iterator.next();
@@ -298,12 +363,34 @@ public class RobotDelivery {
         		    			robot.decreaseCapacity();
         		    		}
         					robot.pickOrder(ordersToPick, debugMode);
+        					
 
-    					}   					
+    					}
+    					if ((robot.getCapacity() > 4)) {
+    						if(robot.getWaitTime() > 5) {
+    							System.out.println(robot + " has waited too long. (" + robot.getWaitTime() + " minutes)");
+    							robot.resetWaitTime();
+    							if(robot.getCurrentLocation().getOrders().size() == 0) {
+    								Station newDestination = robot.getClosestHomebase(dijkstra, ssr);
+    								robot.setNewDestination(newDestination);
+    							} else {
+    								Order orderToDeliver = robot.getOrders().get(0);
+        							robot.setNewDestination(orderToDeliver.getDestination());
+            		    			robot.travelToNextDestination(dijkstra, ssr, debugMode);
+    							}
+    							
+    						} else {
+    							robot.increaseAvailableTime();
+    							robot.increaseWaitTime();
+        						continue;
+    						}					
+    					}
     					if ((robot.getCapacity()) == 10 && (orderForLoading.size() == 0)) {
     						robot.increaseAvailableTime();
+    						robot.increaseWaitTime();
     						continue;
     					} else {
+    						robot.resetWaitTime();
     						// if the robot has no more empty slots or there are no more packages available go forward
     						ArrayList<Order> ordersOfThisRobot = robot.getOrders();
     						int closestDistance = Integer.MAX_VALUE;
@@ -347,8 +434,8 @@ public class RobotDelivery {
         		numPackagesDelivered += station.getDeliveredOrders().size();
         	}
     		System.out.println("Delivered orders: " + numPackagesDelivered + " of " + numPackages);
-    		if (time == 100) {
-    		//if (numPackagesDelivered == numPackages) {
+    		//if (time == 100) {
+    		if (numPackagesDelivered == numPackages) {
     			allPackagesDelivered = true;
     		}
     		
@@ -369,6 +456,18 @@ public class RobotDelivery {
     			break;
     		}
     		time++;
+    		
+    		/*
+    		ArrayList<Station> homebases = new ArrayList<Station>();
+    		homebases.add(ssr.allStations.get("Argüelles"));
+    		homebases.add(ssr.allStations.get("Plaza de Castilla"));
+    		homebases.add(ssr.allStations.get("Diego de León"));
+    		homebases.add(ssr.allStations.get("Sol"));
+
+    		for (Station station: homebases) {
+    			System.out.println("Base: " + station + " has " + station.getOrders().size() + " orders available");
+    		}
+    		*/	
     	}
     		
     		
@@ -385,8 +484,8 @@ public class RobotDelivery {
 		/*
 		 * Choose one of the order set files below
 		 */
-		String ordersFile = "orders_small.jsonl";
-		//String ordersFile = "orders.jsonl";
+		//String ordersFile = "orders_small.jsonl";
+		String ordersFile = "orders.jsonl";
     	
 		/*
     	 * Choose one of the following strategies
@@ -394,16 +493,21 @@ public class RobotDelivery {
     	 */
 		
     	//randomStrategy(ssr, robotsFile, ordersFile, true);
-    	clusterStrategy(ssr, robotsFile, ordersFile, true);
+    	clusterStrategy(ssr, robotsFile, ordersFile, false);
     	
     	
     	/*******
     	 * 
     	 * Strategy Highscores:
     	 * 
-    	 * randomStrategy (orders.jsonl) - Total time: 45327
-    	 * randomStrategy (orders_small.jsonl) - Total time: 556
+    	 * randomStrategy (orders.jsonl) - 			Total time: 45327
+    	 * randomStrategy (orders_small.jsonl) -	Total time: 556
     	 *
+    	 * clusterStrategy (orders.jsonl) - 		Total time: 
+    	 * (algorithm not efficient on the large data set, gets
+    	 * the job done, but takes very long to execute)
+    	 * clusterStrategy (orders_small.jsonl) - 	Total time: 151
+    	 * 
     	 ******/
 	}
 

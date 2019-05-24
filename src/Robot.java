@@ -15,6 +15,7 @@ public class Robot {
 	private Station homebase;
 	private int capacity;
 	private int nextAvailableTime;
+	private int waitTime;
 	private ArrayList<Order> orders;
 	private ArrayList<JSONObject> deliveryLog;
 	
@@ -78,6 +79,15 @@ public class Robot {
 	}
 	public ArrayList<JSONObject> getDeliveryLog(){
 		return deliveryLog;
+	}
+	public int getWaitTime() {
+		return waitTime;
+	}
+	public void increaseWaitTime() {
+		waitTime++;
+	}
+	public void resetWaitTime() {
+		waitTime = 0;
 	}
 	
 
@@ -194,8 +204,11 @@ public class Robot {
 		homebases.add(ssr.allStations.get("Diego de León"));
 		homebases.add(ssr.allStations.get("Sol"));
 		int distanceToNextBase = Integer.MAX_VALUE;
-		Station closestBase = homebases.get(0);
+		Station closestBase = this.homebase;
 		for (Station station: homebases) {
+			if(station.getOrders().size() == 0) {
+				continue;
+			}
 			if(currentLocation == station) {
 				return station;
 			}
