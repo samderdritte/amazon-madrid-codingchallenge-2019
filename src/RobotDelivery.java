@@ -131,6 +131,35 @@ public class RobotDelivery {
 		return ordersForLoading;
 	}
 	
+	public static ArrayList<Order> selectClosestOrders(Robot robot, Station currentStation, ShortestPaths sp){
+		ArrayList<Order> selectedOrders = new ArrayList<Order>();
+		Set<Order> ordersAtThisStation = currentStation.getOrders();
+		
+		// select first order at Random
+		Iterator<Order> iterator = ordersAtThisStation.iterator();
+		Order randomOrder = (Order) iterator.next();
+		// get all orders with the same destination
+		for (Order order : ordersAtThisStation) {
+			if (selectedOrders.size() < 10 
+					&& randomOrder.getDestination() == order.getDestination()) {
+				selectedOrders.add(order);
+			}
+			if (selectedOrders.size() == 10) {
+				break;
+			}
+		}
+		// if selectedOrders are smaller than 10, select Orders next to the first random order
+		for (Order order : ordersAtThisStation) {
+			if (selectedOrders.size() < 10
+					&& randomOrder.getDestination().getConnectedStations().contains(order.getDestination())) {
+				selectedOrders.add(order);	
+			}
+			if (selectedOrders.size() == 10) {
+				break;
+			}
+		}		
+		return selectedOrders;
+	}
 	public static void randomStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename, boolean debugMode) {
 
     	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
@@ -546,43 +575,25 @@ public class RobotDelivery {
     					ArrayList<Order> ordersToPick = new ArrayList<Order>();
     					if(currentStation.getOrders().size() > 0) {
     						
-    						// if robot is empty, take any order at random
-    						if(robot.getCapacity() == 10) {
-    							Iterator<Order> iterator = currentStation.getOrders().iterator();
-        						Order randomOrder = (Order) iterator.next();
-        						ordersToPick.add(randomOrder);
-        						currentStation.removeOrder(randomOrder);
-        						robot.decreaseCapacity();
-        						
-        						for(Order order : currentStation.getOrders()) {
-        							if (robot.getCapacity() > 0 && 
-        									(randomOrder.getDestination().getConnectedStations().contains(order.getDestination()))
-        									|| (randomOrder.getDestination() == order.getDestination())) {
-        								ordersToPick.add(order);
-        								robot.decreaseCapacity();
-        							}
-        							if (robot.getCapacity() == 0) {
-        								break;
-        							}
-        						}
-        						
-    						} else {
-    							Order lastOrderInList = robot.getOrders().get(robot.getOrders().size()-1);
-        						for(Order order : currentStation.getOrders()) {
-        							if (robot.getCapacity() > 0 && 
-        									(lastOrderInList.getDestination().getConnectedStations().contains(order.getDestination()))
-        									|| (lastOrderInList.getDestination() == order.getDestination())) {
-        								ordersToPick.add(order);
-        								robot.decreaseCapacity();
-        							}
-        							if (robot.getCapacity() == 0) {
-        								break;
-        							}
-        						}
+    						// -> write a method for selection of Orders
+    						
+    						ordersToPick = selectClosestOrders(robot, currentStation, sp);
+    						if (ordersToPick.size() > robot.getCapacity()){
+    							ordersToPick.clear();
     						}
-    						if (ordersToPick.size() > 0) {
+    								
+    						// set ordersToPick as a minimum threshold
+    						if (ordersToPick.size() > 6) {
     							robot.pickOrder(ordersToPick, debugMode);
-    						} else if (robot.getWaitTime() > 5){
+    							robot.decreaseCapacity(ordersToPick.size());
+    							Order nextOrder = robot.getOrders().get(0);
+        						robot.setNewDestination(nextOrder.getDestination());
+        						robot.travelToNextDestination(sp, ssr, debugMode);
+        						
+    						// if waited to long, then threshold is smaller
+    						} else if (ordersToPick.size() > 0 && robot.getWaitTime() > 5){
+    							robot.pickOrder(ordersToPick, debugMode);
+    							robot.decreaseCapacity(ordersToPick.size());
     							robot.resetWaitTime();
     							Order nextOrder = robot.getOrders().get(0);
         						robot.setNewDestination(nextOrder.getDestination());
@@ -592,36 +603,18 @@ public class RobotDelivery {
         						robot.increaseWaitTime();
         						continue;
     						}     					
+    					} else {
+    						if (robot.getOrders().size() == 0) {
+    							// if there are no more orders at this station, send robot to the next homebase
+    							//robot.setNewDestination(robot.getClosestHomebase(sp, ssr));
+    						} else {
+    							Order nextOrder = robot.getOrders().get(0);
+        						robot.setNewDestination(nextOrder.getDestination());
+        						robot.travelToNextDestination(sp, ssr, debugMode);
+    						}
+    						
     					}
-    					if (robot.getCapacity() < 4) {
-    						robot.resetWaitTime();
-    						// if the robot has no more empty slots or there are no more packages available go forward
-    						ArrayList<Order> ordersOfThisRobot = robot.getOrders();
-    						int closestDistance = Integer.MAX_VALUE;
-    						Order closestOrder = ordersOfThisRobot.get(0);
-    						robot.setNewDestination(closestOrder.getDestination());
-    						for (Order order : ordersOfThisRobot) {
-    							if(sp.getShortestTime(robot.getDestination(), order.getDestination()) < closestDistance) {
-    								closestDistance = sp.getShortestTime(robot.getDestination(), order.getDestination());
-    								closestOrder = order;
-    							}
-    						} 			
-    						Order orderToDeliver = closestOrder;
-    		    			robot.setNewDestination(orderToDeliver.getDestination());
-    		    			robot.travelToNextDestination(sp, ssr, debugMode);
-    		    			//System.out.println("Robot " + robot.getId() + " moves to " + robot.getCurrentLocation());
-
-    					} else if (robot.getCapacity() != 10 && robot.getWaitTime() > 5) {
-							robot.resetWaitTime();
-							Order nextOrder = robot.getOrders().get(0);
-    						robot.setNewDestination(nextOrder.getDestination());
-    						robot.travelToNextDestination(sp, ssr, debugMode);
-						} else {
-    						robot.increaseAvailableTime();
-    						robot.increaseWaitTime();
-    						continue;
-    					}
-    					    					
+    					
     				} else { // the robot is not at his homebase
     					
     					// if the robot is at the next destination
@@ -651,7 +644,9 @@ public class RobotDelivery {
     		if (numPackagesDelivered == numPackages) {
     			allPackagesDelivered = true;
     		}
-    		
+    		if (numPackagesDelivered > 99590) {
+    			System.out.println("99590");
+    		}
     		if (allPackagesDelivered == true) {
     			System.out.println("Total time: " + time);
     			 try (FileWriter file = new FileWriter("deliveryLog.jsonl")) {
@@ -680,7 +675,16 @@ public class RobotDelivery {
     		for (Station station: homebases) {
     			System.out.println("Base: " + station + " has " + station.getOrders().size() + " orders available");
     		}
-    		*/	
+    		
+    		for(Robot robot : robots) {
+    			if (robot.getCapacity() < 10) {
+    				System.out.println(robot + " carries "+ (10-robot.getCapacity())+" orders.");
+    				System.out.println("Homebase: " + robot.getHomebase());
+    				System.out.println("current dest: " + robot.getDestination());
+    				System.out.println("corrent location: " + robot.getCurrentLocation());
+    			}
+    		}
+    		*/
     	}
     		
     		
@@ -707,7 +711,7 @@ public class RobotDelivery {
 		
     	//randomStrategy(ssr, robotsFile, ordersFile, true);
     	//clusterStrategy(ssr, robotsFile, ordersFile, false);
-    	selectClosestStrategy(ssr, robotsFile, ordersFile, true);
+    	selectClosestStrategy(ssr, robotsFile, ordersFile, false);
     	
     	/*******
     	 * 
@@ -721,7 +725,7 @@ public class RobotDelivery {
     	 * the job done, but takes very long to execute)
     	 * clusterStrategy (orders_small.jsonl) - 	Total time: 151
     	 * 
-    	 * selectClosestStrategy (orders.jsonl) - 			Total time: 9786
+    	 * selectClosestStrategy (orders.jsonl) - 			Total time: 6901
     	 * selectClosestStrategy (orders_small.jsonl) - 	Total time: 150
     	 * 
     	 ******/

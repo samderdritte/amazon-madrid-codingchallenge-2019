@@ -134,9 +134,14 @@ public class Station implements Comparable<Station> {
 	public String getLineForConnection(Station connectedStation, SubwayStationsReader ssr) {
 		String line = "";
 		ArrayList<Connection> connections = getConnections(ssr);
+		int timeToConnection = Integer.MAX_VALUE;
 		for (Connection connection : connections) {
 			if (connection.getOrigin() == this && connection.getDestination() == connectedStation) {
-				line = connection.getLine();
+				if(getTimeToConnection(connection.getDestination()) < timeToConnection) {
+					line = connection.getLine();
+					timeToConnection = getTimeToConnection(connection.getDestination());
+				}
+				
 			}
 		}
 		return line;

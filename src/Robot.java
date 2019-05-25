@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 public class Robot {
@@ -127,11 +128,15 @@ public class Robot {
 					+ ",\"verb\":\"pick\",\"orders\":" + Arrays.toString(ordersArray) + "}");
 
 		}
-				JSONObject line = new JSONObject();
+		JSONObject line = new JSONObject();
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
 		line.put("verb", "pick");
-		line.put("orders", Arrays.toString(ordersArray));
+		JSONArray selectedOrders = new JSONArray();
+		for (int orderID : ordersArray) {
+			selectedOrders.add(orderID);
+		}
+		line.put("orders", selectedOrders);
 		deliveryLog.add(line);
 		
 		nextAvailableTime++;
@@ -161,7 +166,11 @@ public class Robot {
 		line.put("time", nextAvailableTime);
 		line.put("robot", id);
 		line.put("verb", "drop");
-		line.put("orders", Arrays.toString(ordersArray));
+		JSONArray selectedOrders = new JSONArray();
+		for (int orderID : ordersArray) {
+			selectedOrders.add(orderID);
+		}
+		line.put("orders", selectedOrders);
 		deliveryLog.add(line);
 		
 		if(orders.size() > 0) {
@@ -190,11 +199,11 @@ public class Robot {
 		line.put("robot", id);
 		line.put("verb", "go");
 		line.put("line", origin.getLineForConnection(nextStation, ssr));
-		line.put("station", nextStation);
+		line.put("station", nextStation.getName());
 		deliveryLog.add(line);
     	int timeToNextStation = origin.getTimeToConnection(nextStation);
     	//System.out.println("time to next" + timeToNextStation);
-    	nextAvailableTime += timeToNextStation;
+    	nextAvailableTime += timeToNextStation+1;
     	currentLocation = nextStation;   	
 	}
 	
