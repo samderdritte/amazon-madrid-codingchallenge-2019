@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import org.json.simple.JSONObject;
@@ -136,8 +137,12 @@ public class RobotDelivery {
 		Set<Order> ordersAtThisStation = currentStation.getOrders();
 		
 		// select first order at Random
-		Iterator<Order> iterator = ordersAtThisStation.iterator();
-		Order randomOrder = (Order) iterator.next();
+		List<Order> orderList = new ArrayList<Order>(ordersAtThisStation);
+		Random random = new Random();
+		int randomIndex = random.nextInt(ordersAtThisStation.size());
+		Order randomOrder = orderList.get(randomIndex);
+		
+		//Order randomOrder = (Order) iterator.next();
 		// get all orders with the same destination
 		for (Order order : ordersAtThisStation) {
 			if (selectedOrders.size() < 10 
@@ -157,9 +162,48 @@ public class RobotDelivery {
 			if (selectedOrders.size() == 10) {
 				break;
 			}
-		}		
+		}
+		System.out.println(sp.getTimeOfTrip(selectedOrders));
 		return selectedOrders;
 	}
+	
+	public static ArrayList<Order> selectRandomOrders(Robot robot, Station currentStation, ShortestPaths sp){
+		ArrayList<Order> selectedOrders = new ArrayList<Order>();
+		Set<Order> ordersAtThisStation = currentStation.getOrders();
+		
+		// select first order at Random
+		List<Order> orderList = new ArrayList<Order>(ordersAtThisStation);
+		Random random = new Random();
+		int randomIndex = random.nextInt(ordersAtThisStation.size());
+		Order randomOrder = orderList.get(randomIndex);
+		
+		//Order randomOrder = (Order) iterator.next();
+		// get all orders with the same destination
+		for (Order order : ordersAtThisStation) {
+			if (selectedOrders.size() < 10 
+					&& !selectedOrders.contains(order)
+					&& randomOrder.getDestination() == order.getDestination()) {
+				selectedOrders.add(order);
+			}
+			if (selectedOrders.size() == 10) {
+				break;
+			}
+		}
+		// if selectedOrders are smaller than 10, select Orders next to the first random order
+		for (Order order : ordersAtThisStation) {
+			if (selectedOrders.size() < 10
+					&& !selectedOrders.contains(order)
+					&& sp.getShortestTime(randomOrder.getDestination(), order.getDestination()) < 10) {
+				selectedOrders.add(order);	
+			}
+			if (selectedOrders.size() == 10) {
+				break;
+			}
+		}
+		//System.out.println(sp.getTimeOfTrip(selectedOrders));
+		return selectedOrders;
+	}
+	
 	public static void randomStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename, boolean debugMode) {
 
     	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
@@ -685,11 +729,262 @@ public class RobotDelivery {
     			}
     		}
     		*/
-    	}
+    	}    		
+	}
+	
+	/**
+	 * Strategy using Simulated Annealing
+	 * 
+	 */
+	public static void SimulatedAnnealingStrategy(SubwayStationsReader ssr, String robotsFilename, String ordersFilename, boolean debugMode) {
+
+    	ArrayList<Order> ordersSorted = sortOrders(ordersFilename, ssr);
+    	
+    	ArrayList<Robot> robots = setupRobots(robotsFilename, ssr);
+    	
+    	ShortestPaths sp = new ShortestPaths(ssr);
+    	
+    	SimulatedAnnealing sa = new SimulatedAnnealing();
+    	
+    	boolean allPackagesDelivered = false;
+    	int numPackages = ordersSorted.size();
+    	int numPackagesDelivered = 0;
+    	int time = 0;
+    	
+    	while (!allPackagesDelivered) {
     		
+    		System.out.println("\n--- Time is: " + time + " ---");
     		
+    		/**
+    		 * Orders loop
+    		 * While there are still orders, select the orders from the current time and do something with it
+    		 */
+
+    		while (ordersSorted.size() > 0 && ordersSorted.get(0).getTime() == time) {
+    			// select the first order from the sorted list of orders
+    			Order currentOrder = ordersSorted.get(0);
+    			
+    			// add the order to the Station of origin
+    			currentOrder.getOrigin().addOrder(currentOrder);   			
+    			
+    			// remove the top order from the sorted order list
+    			// this way you always have the latest order
+    			ordersSorted.remove(0);
+    		}
     		
+    		/**
+    		 * Robot loop
+    		 */
     		
+    		// select only one robot
+    		//Robot robot0 = robots.get(0);
+    		//robots = new ArrayList<Robot>();
+    		//robots.add(robot0);
+    		
+    		for (Robot robot : robots) {
+    			Station currentStation = robot.getCurrentLocation();
+    			//System.out.println("\n"+robot
+    			//		+ " Current Location: " + robot.getCurrentLocation()
+    			//		+ " Capacity: " + robot.getCapacity());
+    			
+    			
+    			// if the robot is unavailable (== travelling), then go to the next robot
+    			if (robot.getNextAvailableTime() > time) {
+    				if(debugMode) {
+    					System.out.println("{" + robot + " is moving.}");
+    				}   				
+    				continue;
+    			
+    			// if the robot is available then start his work loop
+    			} else {
+    				
+    				// check if at homebase
+    				if (currentStation == robot.getHomebase()) {
+    					//System.out.println(robot + " is at homebase.");
+    					
+    					// pick up packages while the robot has space and the location has packages
+    					ArrayList<Order> ordersToPick = new ArrayList<Order>();
+    					if(currentStation.getOrders().size() > 0) {
+    														
+    						ordersToPick = selectRandomOrders(robot, currentStation, sp);
+    						//ordersToPick = selectClosestOrders(robot, currentStation, sp);
+    						
+    						//System.out.println("Orders to pick: " + ordersToPick);
+    						
+    						if (ordersToPick.size() > robot.getCapacity()){
+    							ordersToPick.clear();
+    						}
+    								
+    						// set ordersToPick as a minimum threshold
+    						if (ordersToPick.size() > 6) {
+    							robot.pickOrder(ordersToPick, debugMode);
+    							robot.decreaseCapacity(ordersToPick.size());
+    							
+    							// calculate optimal route for robot 
+        						ArrayList<Station> newRoute = new ArrayList<Station>();
+        						newRoute.add(currentStation);
+        						for(Order order : ordersToPick) {
+        							//dont add the same destination twice
+        							if (newRoute.contains(order.getDestination())) {
+        								continue;
+        							} else {
+        								newRoute.add(order.getDestination());
+        							}
+        						}
+        									
+        						Travel travel = new Travel(newRoute);
+        						//System.out.println("New Travel route: " + travel);   						
+        						ArrayList<Station> bestTravelRoute = sa.simulateAnnealingReturnToBase(20, 1000, 1, travel, sp);
+        						robot.setTravelRoute(bestTravelRoute);
+        						robot.deleteFirstTravelPoint(); // delete homebase
+    							Station nextStation = robot.getTravelRoute().get(0);
+        						robot.setNewDestination(nextStation);
+        						robot.travelToNextDestination(sp, ssr, debugMode);
+        						
+    						// if waited to long, then threshold is smaller
+    						} else if (ordersToPick.size() > 0 && robot.getWaitTime() > 3){
+    							robot.pickOrder(ordersToPick, debugMode);
+    							robot.decreaseCapacity(ordersToPick.size());
+    							robot.resetWaitTime();
+    							
+    							// calculate optimal route for robot 
+        						ArrayList<Station> newRoute = new ArrayList<Station>();
+        						newRoute.add(currentStation);
+        						for(Order order : ordersToPick) {
+        							//dont add the same destination twice
+        							if (order.getDestination() == newRoute.get(newRoute.size()-1)) {
+        								continue;
+        							} else {
+        								newRoute.add(order.getDestination());
+        							}
+        						}
+        						System.out.println(newRoute);			
+        						Travel travel = new Travel(newRoute);
+        						Station nextStation = currentStation;
+        						if(travel.getTravel().size() == 2) {
+        							nextStation = travel.getTravel().get(1);
+        						} else {
+        							//System.out.println("New Travel route: " + travel);   						
+            						ArrayList<Station> bestTravelRoute = sa.simulateAnnealingReturnToBase(200, 1000, 1, travel, sp);
+            						robot.setTravelRoute(bestTravelRoute);
+            						//System.out.println(robot.getTravelRoute());
+            						if(robot.getTravelRoute().size() > 0) {
+            							robot.deleteFirstTravelPoint(); // delete homebase
+            							nextStation = robot.getTravelRoute().get(0);
+            						}
+        						}		
+        						robot.setNewDestination(nextStation);
+        						robot.travelToNextDestination(sp, ssr, debugMode);
+    						} else {
+    							robot.increaseAvailableTime();
+        						robot.increaseWaitTime();
+        						continue;
+    						}     					
+    					} else {
+    						if (robot.getOrders().size() == 0) {
+    							//robot.increaseWaitTime();
+    							// if there are no more orders at this station, send robot to the next homebase
+    							robot.setNewDestination(robot.getClosestHomebase(sp, ssr));
+    						} else {
+    							System.out.println("XXX");
+    							if(robot.getOrders().size() > 0) {
+    								robot.setNewDestination(robot.getOrders().get(0).getDestination());
+    								robot.travelToNextDestination(sp, ssr, debugMode);
+    							}
+    							/*
+    							// calculate optimal route for robot 
+        						ArrayList<Station> newRoute = new ArrayList<Station>();
+        						newRoute.add(currentStation);
+        						for(Order order : ordersToPick) {
+        							//dont add the same destination twice
+        							if (order.getDestination() == newRoute.get(newRoute.size()-1)) {
+        								continue;
+        							} else {
+        								newRoute.add(order.getDestination());
+        							}
+        						}
+        									
+        						Travel travel = new Travel(newRoute);
+        						//System.out.println("New Travel route: " + travel);   						
+        						ArrayList<Station> bestTravelRoute = sa.simulateAnnealingReturnToBase(200, 1000, 1, travel, sp);
+        						robot.setTravelRoute(bestTravelRoute);
+        						robot.deleteFirstTravelPoint(); // delete homebase
+    							Station nextStation = robot.getTravelRoute().get(0);
+        						robot.setNewDestination(nextStation);
+        						robot.travelToNextDestination(sp, ssr, debugMode);
+        						*/
+    						}
+    						
+    					}
+    					
+    				} else { // the robot is not at his homebase
+    					
+    					// if the robot is at the next destination
+    					if (currentStation == robot.getDestination()) {
+    						robot.deliverOrderTravel(sp, ssr, debugMode);
+    					} else {
+    						robot.travelToNextDestination(sp, ssr, debugMode);
+    					}
+    					//System.out.println("Robot " + robot.getId() + " is NOT at homebase.");
+    					//System.out.println(robot.getNextAvailableTime());
+    				}
+    				
+    			}   			
+    		}
+    		
+    		/**
+    		 * End of round
+    		 * - check if all packages are delivered
+    		 * - end or continue
+    		 */
+    		numPackagesDelivered = 0;
+        	for (Station station : ssr.allStationsList) {
+        		numPackagesDelivered += station.getDeliveredOrders().size();
+        	}
+    		System.out.println("Delivered orders: " + numPackagesDelivered + " of " + numPackages);
+    		//if (time == 100) {
+    		if (numPackagesDelivered == numPackages) {
+    			allPackagesDelivered = true;
+    		}
+    		if (allPackagesDelivered == true) {
+    			System.out.println("Total time: " + time);
+    			 try (FileWriter file = new FileWriter("deliveryLog.jsonl")) {
+    				 for (Robot robot : robots) {
+    					 ArrayList<JSONObject> log = robot.getDeliveryLog();
+    					 for (JSONObject logLine : log) {
+    						 file.write(logLine.toJSONString() + "\n");
+    						 
+    					 }
+    	    			}
+    		        } catch (IOException e) {
+    		            e.printStackTrace();
+    		        }
+    			
+    			break;
+    		}
+    		time++;
+    		
+    		/*
+    		ArrayList<Station> homebases = new ArrayList<Station>();
+    		homebases.add(ssr.allStations.get("Argüelles"));
+    		homebases.add(ssr.allStations.get("Plaza de Castilla"));
+    		homebases.add(ssr.allStations.get("Diego de León"));
+    		homebases.add(ssr.allStations.get("Sol"));
+
+    		for (Station station: homebases) {
+    			System.out.println("Base: " + station + " has " + station.getOrders().size() + " orders available");
+    		}
+    		
+    		for(Robot robot : robots) {
+    			if (robot.getCapacity() < 10) {
+    				System.out.println(robot + " carries "+ (10-robot.getCapacity())+" orders.");
+    				System.out.println("Homebase: " + robot.getHomebase());
+    				System.out.println("current dest: " + robot.getDestination());
+    				System.out.println("corrent location: " + robot.getCurrentLocation());
+    			}
+    		}
+    		*/
+    	}    		
 	}
 	public static void main(String[] args) {
 		
@@ -711,8 +1006,8 @@ public class RobotDelivery {
 		
     	//randomStrategy(ssr, robotsFile, ordersFile, true);
     	//clusterStrategy(ssr, robotsFile, ordersFile, false);
-    	selectClosestStrategy(ssr, robotsFile, ordersFile, false);
-    	
+    	//selectClosestStrategy(ssr, robotsFile, ordersFile, false);
+		SimulatedAnnealingStrategy(ssr, robotsFile, ordersFile, true);
     	/*******
     	 * 
     	 * Strategy Highscores:

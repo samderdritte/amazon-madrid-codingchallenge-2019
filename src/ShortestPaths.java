@@ -51,6 +51,35 @@ public class ShortestPaths {
 		return dijkstra.getTimeOfTrip(shortestPath);
 	}
 	
+	public int getTimeOfTrip(ArrayList<Order> tripList) {
+		if(tripList == null) {
+    		return 0;
+    	}
+    	int totalTime = 0;
+    	Station startingPoint = tripList.get(0).getOrigin();
+    	Station firstStop = tripList.get(0).getDestination();
+    	totalTime += getShortestTime(startingPoint, firstStop);
+    	for (int i=0;i<(tripList.size()-1);i++) {
+    		Station currentStation = tripList.get(i).getDestination();
+    		Station nextStation = tripList.get(i+1).getDestination();
+    		totalTime += getShortestTime(currentStation, nextStation);
+    	}
+     	return totalTime;
+	}
+	
+	public int getTimeOfTripList(ArrayList<Station> tripList) {
+		if(tripList == null) {
+    		return 0;
+    	}
+    	int totalTime = 0;
+    	for (int i=0;i<(tripList.size()-1);i++) {
+    		Station currentStation = tripList.get(i);
+    		Station nextStation = tripList.get(i+1);
+    		totalTime += getShortestTime(currentStation, nextStation);
+    	}
+     	return totalTime;
+	}
+	
 	public Station getClosestStation(Station origin) {
 		int shortestTime = Integer.MAX_VALUE;
 		Station closestStation = origin;

@@ -19,6 +19,7 @@ public class Robot {
 	private int waitTime;
 	private ArrayList<Order> orders;
 	private ArrayList<JSONObject> deliveryLog;
+	private ArrayList<Station> travelRoute;
 	
 	public Robot(int id, Station homebase, int capacity) {
 		this.id = id;
@@ -27,6 +28,7 @@ public class Robot {
 		this.capacity = capacity;
 		orders = new ArrayList<Order>();
 		deliveryLog = new ArrayList<JSONObject>();
+		travelRoute = new ArrayList<Station>();
 	}
 	
 	@Override
@@ -89,6 +91,17 @@ public class Robot {
 	}
 	public void resetWaitTime() {
 		waitTime = 0;
+	}
+	
+	public ArrayList<Station> getTravelRoute(){
+		return travelRoute;
+	}
+	public void setTravelRoute(ArrayList<Station> newTravelRoute) {
+		this.travelRoute = newTravelRoute;
+	}
+	
+	public void deleteFirstTravelPoint() {
+		travelRoute.remove(0);
 	}
 	
 
@@ -182,6 +195,51 @@ public class Robot {
 		nextAvailableTime++;
 	}
 	
+	public void deliverOrderTravel(ShortestPaths sp, SubwayStationsReader ssr, boolean debugMode) {
+		ArrayList<Order> deliveredOrders = new ArrayList<Order>();
+		Collection<Order> ordersToRemove = new LinkedList<Order>(deliveredOrders);
+		for (Order order : orders) {
+			if(order.getDestination() == currentLocation) {
+				currentLocation.addDeliveredOrder(order);
+				deliveredOrders.add(order);
+				ordersToRemove.add(order);
+				this.increaseCapacity();
+			}
+		}
+		orders.removeAll(ordersToRemove);
+		int[] ordersArray = new int[deliveredOrders.size()];
+		for (int i = 0; i < deliveredOrders.size(); i++) {
+			ordersArray[i] = deliveredOrders.get(i).getId();
+		}
+		if(debugMode) {
+			System.out.println("{\"time\": " + nextAvailableTime + ",\"robot\":" + id + ",\"verb\":\"drop\",\"orders\":" + Arrays.toString(ordersArray) + "}");			
+		}
+		
+		JSONObject line = new JSONObject();
+		line.put("time", nextAvailableTime);
+		line.put("robot", id);
+		line.put("verb", "drop");
+		JSONArray selectedOrders = new JSONArray();
+		for (int orderID : ordersArray) {
+			selectedOrders.add(orderID);
+		}
+		line.put("orders", selectedOrders);
+		deliveryLog.add(line);
+		
+		for (int i = travelRoute.size()-1;i>-1;i--) {
+			if (travelRoute.get(i) == currentLocation) {
+				travelRoute.remove(i);
+			}
+		}		
+		
+		if(travelRoute.size() > 0) {			
+			currentDestination = travelRoute.get(0);
+		} else {
+			currentDestination = getClosestHomebase(sp, ssr);
+			homebase = currentDestination;
+		}
+		nextAvailableTime++;
+	}
 	public void travelToNextDestination(ShortestPaths sp, SubwayStationsReader ssr, boolean debugMode) {
 		
 		Station destination =  currentDestination;
@@ -205,6 +263,19 @@ public class Robot {
     	//System.out.println("time to next" + timeToNextStation);
     	nextAvailableTime += timeToNextStation+1;
     	currentLocation = nextStation;   	
+	}
+	
+	public Order getClosestOrder(ShortestPaths sp, SubwayStationsReader ssr) {
+		int shortestDistance = Integer.MAX_VALUE;
+		Order closestOrder = orders.get(0);
+		for (Order order : orders){
+			int timeToOrder = sp.getShortestTime(currentLocation, order.getDestination());
+			if (timeToOrder < shortestDistance) {
+				shortestDistance = timeToOrder;
+				closestOrder = order;
+			}
+		}
+		return closestOrder;
 	}
 	
 	public Station getClosestHomebase(ShortestPaths sp, SubwayStationsReader ssr) {

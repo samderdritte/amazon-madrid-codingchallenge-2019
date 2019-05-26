@@ -143,6 +143,19 @@ public class DijkstraAlgorithm {
     	}
      	return totalTime;
     }
+    
+    public int getTimeOfTrip(ArrayList<Station> path) {
+    	if(path == null) {
+    		return 0;
+    	}
+    	int totalTime = 0;
+    	for (int i=0;i<(path.size()-1);i++) {
+    		Station currentStation = path.get(i);
+    		Station nextStation = path.get(i+1);
+    		totalTime += currentStation.getConnectionTimes().get(nextStation);
+    	}
+     	return totalTime;
+    }
     /**
      * Returns the neighboring station with the shortest path to the destination.
      * If two paths have the same time, the return the next station in alphabetical order.

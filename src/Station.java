@@ -161,6 +161,11 @@ public class Station implements Comparable<Station> {
 		this.stationsFromSource = stations;
 	}
 	
+	// used in the Travel class for TSP
+	public int getShortestTimeToAnotherStation(Station nextStation, ShortestPaths sp) {
+		return sp.getShortestTime(this, nextStation);
+	}
+	
 	@Override
 	public int compareTo(Station comparedStation) {
 	    return this.getName().compareTo(comparedStation.getName());
