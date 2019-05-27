@@ -111,6 +111,10 @@ public class Robot {
 	public void increaseAvailableTime() {
 		nextAvailableTime++;
 	}
+	
+	public void setAvailableTime(int time) {
+		nextAvailableTime = time;
+	}
 	public void decreaseCapacity() {
 		capacity--;
 	}
@@ -122,6 +126,15 @@ public class Robot {
 	}
 	public void increaseCapacity(int capacity) {
 		this.capacity += capacity;
+	}
+	
+	public void addOrder(Order order) {
+		orders.add(order);
+		capacity--;
+	}
+	public void removeOrders(ArrayList<Order> ordersToRemove) {
+		orders.removeAll(ordersToRemove);
+		capacity += ordersToRemove.size();
 	}
 	
 	public void pickOrder(ArrayList<Order> newOrders, boolean debugMode) {

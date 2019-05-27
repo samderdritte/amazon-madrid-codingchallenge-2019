@@ -797,7 +797,9 @@ public class RobotDelivery {
     			
     			// if the robot is available then start his work loop
     			} else {
-    				
+    				if(robot.getNextAvailableTime() < time) {
+    					robot.setAvailableTime(time);
+    				}
     				// check if at homebase
     				if (currentStation == robot.getHomebase()) {
     					//System.out.println(robot + " is at homebase.");
@@ -806,7 +808,7 @@ public class RobotDelivery {
     					ArrayList<Order> ordersToPick = new ArrayList<Order>();
     					Set<Order> ordersAtThisStation = new HashSet<Order>(currentStation.getOrders());
     					if(currentStation.getOrders().size() > 0) {
-    						
+    						// if the robot is empty
     						if(robot.getCapacity() == 10) {
     							while(ordersAtThisStation.size() > 0 && robot.getCapacity() > 0) {
         							Iterator<Order> iterator = ordersAtThisStation.iterator();							    			
@@ -814,8 +816,8 @@ public class RobotDelivery {
             		    			if (ordersToPick.size() > 0) {
             		    				if (ordersToPick.get(0).getDestination() == orderToPick.getDestination()) {
             		    					ordersToPick.add(orderToPick);
+            		    					robot.addOrder(orderToPick);
                     		    			currentStation.removeOrder(orderToPick);
-                    		    			robot.decreaseCapacity();
                     		    			ordersAtThisStation.remove(orderToPick);
             		    				} else {
             		    					ordersAtThisStation.remove(orderToPick);
@@ -823,15 +825,11 @@ public class RobotDelivery {
             		    			} else {
             		    				ordersToPick.add(orderToPick);
                 		    			currentStation.removeOrder(orderToPick);
-                		    			ordersAtThisStation.remove(orderToPick);    	
-                		    			robot.decreaseCapacity();
+                		    			ordersAtThisStation.remove(orderToPick);
+                		    			robot.addOrder(orderToPick);
             		    			}		
         						}
-    							if(ordersToPick.size() > 0) {
-        							robot.pickOrder(ordersToPick, debugMode);
-        							
-        							ordersToPick.clear();
-        						}
+    						// if the robot already has orders
     						} else {
     							while(ordersAtThisStation.size() > 0 && robot.getCapacity() > 0) {
     								Order previousOrder = robot.getOrders().get(0);
@@ -840,34 +838,31 @@ public class RobotDelivery {
             		    			if (ordersToPick.size() > 0 && previousOrder.getDestination() == orderToPick.getDestination()) {
             		    				if (ordersToPick.get(0).getDestination() == orderToPick.getDestination()) {
             		    					ordersToPick.add(orderToPick);
+            		    					robot.addOrder(orderToPick);
                     		    			currentStation.removeOrder(orderToPick);
                     		    			ordersAtThisStation.remove(orderToPick);
-                    		    			robot.decreaseCapacity();
             		    				} else {
             		    					ordersAtThisStation.remove(orderToPick);
             		    				}
             		    			} else if (previousOrder.getDestination() == orderToPick.getDestination()){
             		    				ordersToPick.add(orderToPick);
+            		    				robot.addOrder(orderToPick);
                 		    			currentStation.removeOrder(orderToPick);
-                		    			robot.decreaseCapacity();
                 		    			ordersAtThisStation.remove(orderToPick);    						
             		    			} else {
             		    				ordersAtThisStation.remove(orderToPick);
             		    			}
     							}
-    							if(ordersToPick.size() > 0) {
-        							robot.pickOrder(ordersToPick, debugMode);
-        							ordersToPick.clear();
-        						}
     						}
-    						if (robot.getCapacity() < 6) {
+    						if (robot.getCapacity() < 10 || robot.getWaitTime() > 2) {
+    							ArrayList<Order> ordersOfRobot = new ArrayList<>(robot.getOrders());
+    							robot.removeOrders(ordersOfRobot);
+								robot.pickOrder(ordersOfRobot, debugMode);
+								robot.decreaseCapacity(ordersOfRobot.size());
     							robot.setNewDestination(robot.getOrders().get(0).getDestination());
 								robot.travelToNextDestination(sp, ssr, debugMode);
     						} else {
-    							if (robot.getWaitTime() > 1) {
-    								robot.setNewDestination(robot.getOrders().get(0).getDestination());
-    								robot.travelToNextDestination(sp, ssr, debugMode);
-    							}
+    							robot.increaseAvailableTime();
     						}
     						
     						
@@ -888,6 +883,10 @@ public class RobotDelivery {
     						} else {
     							System.out.println("XXX");
     							if(robot.getOrders().size() > 0) {
+    								ArrayList<Order> ordersOfRobot = new ArrayList<>(robot.getOrders());
+        							robot.removeOrders(ordersOfRobot);
+    								robot.pickOrder(ordersOfRobot, debugMode);
+    								robot.decreaseCapacity(ordersOfRobot.size());
     								robot.setNewDestination(robot.getOrders().get(0).getDestination());
     								robot.travelToNextDestination(sp, ssr, debugMode);
     							}
@@ -1216,6 +1215,7 @@ public class RobotDelivery {
     		*/
     	}    		
 	}
+
 	public static void main(String[] args) {
 		
 		SubwayStationsReader ssr = new SubwayStationsReader("metro_lines.json");
@@ -1238,7 +1238,7 @@ public class RobotDelivery {
     	//clusterStrategy(ssr, robotsFile, ordersFile, false);
     	//selectClosestStrategy(ssr, robotsFile, ordersFile, false);
 		//SimulatedAnnealingStrategy(ssr, robotsFile, ordersFile, true);
-		onlyTheSameOrderStrategy(ssr, robotsFile, ordersFile, true);
+		onlyTheSameOrderStrategy(ssr, robotsFile, ordersFile, false);
     	/*******
     	 * 
     	 * Strategy Highscores:
